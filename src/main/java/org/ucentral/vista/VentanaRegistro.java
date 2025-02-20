@@ -1,0 +1,73 @@
+package org.ucentral.vista;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+
+public class VentanaRegistro extends JFrame {
+
+    private JLabel etiquetaNombre;
+    private JTextField campoNombre;
+    private JLabel etiquetaId;
+    private JTextField campoId;
+    private JLabel etiquetaCorreo;
+    private JTextField campoCorreo;
+    private JButton botonRegistrar;
+
+    public VentanaRegistro() {
+        setTitle("Registro de Usuario");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setSize(300, 250);
+        setLocationRelativeTo(null);
+
+        // Crear componentes
+        etiquetaNombre = new JLabel("Nombre:");
+        campoNombre = new JTextField(20);
+        etiquetaId = new JLabel("ID:");
+        campoId = new JTextField(10);
+        etiquetaCorreo = new JLabel("Correo:");
+        campoCorreo = new JTextField(20);
+        botonRegistrar = new JButton("Registrar");
+
+        // Crear panel y agregar componentes
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        panel.add(etiquetaNombre);
+        panel.add(campoNombre);
+        panel.add(etiquetaId);
+        panel.add(campoId);
+        panel.add(etiquetaCorreo);
+        panel.add(campoCorreo);
+        panel.add(new JLabel()); // Espacio en blanco
+        panel.add(botonRegistrar);
+
+        // Agregar panel al frame
+        add(panel);
+
+        setVisible(true);
+    }
+
+    // Getters para obtener los valores de los campos
+    public String getNombre() {
+        return campoNombre.getText();
+    }
+
+    public String getId() {
+        return campoId.getText();
+    }
+
+    public String getCorreo() {
+        return campoCorreo.getText();
+    }
+
+    public JButton getBotonRegistrar() { // Agregar este método
+        return botonRegistrar;
+    }
+
+    // Método para agregar ActionListener al botón
+    public void agregarActionListener(ActionListener listener) {
+        botonRegistrar.addActionListener(listener);
+    }
+
+
+}
