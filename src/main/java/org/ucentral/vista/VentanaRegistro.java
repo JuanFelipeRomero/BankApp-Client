@@ -12,6 +12,8 @@ public class VentanaRegistro extends JFrame {
     private JTextField campoId;
     private JLabel etiquetaCorreo;
     private JTextField campoCorreo;
+    private JLabel etiquetaContrasena;
+    private JPasswordField campoContrasena;
     private JButton botonRegistrar;
 
     public VentanaRegistro() {
@@ -27,17 +29,21 @@ public class VentanaRegistro extends JFrame {
         campoId = new JTextField(10);
         etiquetaCorreo = new JLabel("Correo:");
         campoCorreo = new JTextField(20);
+        etiquetaContrasena = new JLabel("Contraseña:");
+        campoContrasena = new JPasswordField(20);
         botonRegistrar = new JButton("Registrar");
 
         // Crear panel y agregar componentes
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        panel.setLayout(new GridLayout(5, 2, 10, 10));
         panel.add(etiquetaNombre);
         panel.add(campoNombre);
         panel.add(etiquetaId);
         panel.add(campoId);
         panel.add(etiquetaCorreo);
         panel.add(campoCorreo);
+        panel.add(etiquetaContrasena);
+        panel.add(campoContrasena);
         panel.add(new JLabel()); // Espacio en blanco
         panel.add(botonRegistrar);
 
@@ -58,6 +64,10 @@ public class VentanaRegistro extends JFrame {
 
     public String getCorreo() {
         return campoCorreo.getText();
+    }
+
+    public String getContrasena() {
+        return new String(campoContrasena.getPassword()); // Obtener la contraseña como String
     }
 
     public JButton getBotonRegistrar() { // Agregar este método

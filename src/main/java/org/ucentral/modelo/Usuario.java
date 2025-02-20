@@ -4,12 +4,15 @@ public class Usuario {
     private String id;
     private String nombre;
     private String correo;
+    private String contrasena;
     private CuentaBancaria cuentaBancaria;
 
-    public Usuario(String id, String nombre, String correo, CuentaBancaria cuentaBancaria) {
+
+    public Usuario(String id, String nombre, String correo, String contrasena, CuentaBancaria cuentaBancaria) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;
+        this.contrasena = contrasena;
         this.cuentaBancaria = cuentaBancaria;
     }
 
@@ -36,6 +39,10 @@ public class Usuario {
     public void setCorreo(String correo) {
         this.correo = correo;
     }
+
+    public String getContrasena() {return contrasena;}
+
+    public void setContrasena(String contrasena) { this.contrasena = contrasena;}
 
     public CuentaBancaria getCuentaBancaria() {
         return cuentaBancaria;

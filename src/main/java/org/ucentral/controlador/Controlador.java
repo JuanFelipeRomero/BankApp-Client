@@ -73,11 +73,20 @@ public class Controlador implements ActionListener {
             String nombre = ventanaRegistro.getNombre();
             String id = ventanaRegistro.getId();
             String correo = ventanaRegistro.getCorreo();
+            String contrasena = ventanaRegistro.getContrasena();
 
             // TODO: Validar los datos del usuario
 
             // TODO: Enviar solicitud de registro al servidor
-            // comunicacionServidor.enviarSolicitud(solicitudRegistro);
+            String solicitudRegistro = String.format("{" +
+                    "\"tipoOperacion\": \"crear_cuenta\"," +
+                    "\"datos\": {" +
+                    "\"nombre\": \"%s\"," +
+                    "\"identificacion\": %s," +
+                    "\"correo\": \"%s\"," +
+                    "\"contrasena\": \"%s\"" +
+                    "}" +
+                    "}", nombre, id, correo, contrasena);
 
             // TODO: Procesar respuesta del servidor y mostrar mensaje al usuario
         }
