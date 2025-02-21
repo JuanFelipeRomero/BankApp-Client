@@ -33,44 +33,43 @@ public class ComunicadorServidor {
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 servidorActivo = true;
-
-                // Iniciar hilo para recibir mensajes del servidor
-                new Thread(() -> {
-                    String fromServer;
-                    try {
-                        while ((fromServer = in.readLine())!= null) {
-                            // Procesar mensaje del servidor (e.g., actualizar la vista)
-                            //...
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        JOptionPane.showMessageDialog(null, "Servidor desconectado");
-                        servidorActivo = false;
-                        // Actualizar la vista para indicar que el servidor se ha desconectado
-                        //...
-                    }
-                }).start();
+                System.out.println("Conexión al servidor establecida.");
             }
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "No se pudo conectar al servidor");
             servidorActivo = false;
+            System.err.println("No se pudo conectar al servidor.");
         }
-
-        // Actualizar la vista según el estado de la conexión
-        //...
     }
 
-    public void enviarSolicitud(String solicitud) {
-        if (out!= null && servidorActivo) {
+    // Método síncrono: envía la solicitud y espera la respuesta inmediatamente.
+    public String enviarSolicitud(String solicitud) {
+        if (out != null && servidorActivo) {
             out.println(solicitud);
+            System.out.println("Solicitud enviada al servidor: " + solicitud);
+            return recibirRespuesta();
         }
-    }
-
-    public String recibirRespuesta() {
-        // Implementar la lógica para recibir la respuesta del servidor
-        //...
         return null;
     }
 
+    public String recibirRespuesta() {
+        try {
+            if (in != null && servidorActivo) {
+                String respuesta = in.readLine();
+                if (respuesta == null) {
+                    System.err.println("Servidor cerró la conexión inesperadamente.");
+                    return null;
+                }
+                System.out.println("Respuesta recibida del servidor: " + respuesta);
+                return respuesta;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al recibir respuesta del servidor");
+            servidorActivo = false;
+            System.err.println("Error al recibir respuesta del servidor: " + e);
+        }
+        return null;
+    }
 }

@@ -73,6 +73,11 @@ public class VentanaRegistro extends JFrame {
     public JButton getBotonRegistrar() { // Agregar este método
         return botonRegistrar;
     }
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+
 
     // Método para agregar ActionListener al botón
     public void agregarActionListener(ActionListener listener) {
@@ -80,4 +85,7 @@ public class VentanaRegistro extends JFrame {
     }
 
 
+    public void mostrarMensaje(String msg) {
+        System.out.println(msg);
+    }
 }

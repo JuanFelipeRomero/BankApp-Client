@@ -3,13 +3,18 @@ package org.ucentral.vista;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import org.ucentral.comunicacionServidor.ComunicadorServidor;
 
 public class VentanaPrincipal extends JFrame {
 
     private JButton botonRegistrarse;
     private JButton botonYaSoyUsuario;
 
+
+
     public VentanaPrincipal() {
+
+
         setTitle("Aplicación Bancaria");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(300, 150);
@@ -27,6 +32,9 @@ public class VentanaPrincipal extends JFrame {
 
         // Agregar panel al frame
         add(panel);
+
+        // Conectar al servidor al iniciar la aplicación
+        ComunicadorServidor.getInstance().conectar();
 
         setVisible(true);
     }
