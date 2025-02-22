@@ -11,9 +11,7 @@ public class VentanaPrincipal extends JFrame {
     private JButton botonYaSoyUsuario;
 
 
-
     public VentanaPrincipal() {
-
 
         setTitle("Aplicación Bancaria");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +46,12 @@ public class VentanaPrincipal extends JFrame {
         return botonYaSoyUsuario;
     }
 
-    // Método para agregar ActionListener a los botones
+    //Metodo para mostrar un mensaje de error
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    //Metodo para agregar ActionListener a los botones
     public void agregarActionListener(ActionListener listener) {
         botonRegistrarse.addActionListener(listener);
         botonYaSoyUsuario.addActionListener(listener);

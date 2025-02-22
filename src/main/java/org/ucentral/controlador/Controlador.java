@@ -23,14 +23,35 @@ public class Controlador implements ActionListener {
 
     public Controlador(VentanaPrincipal ventanaPrincipal) {
         this.ventanaPrincipal = ventanaPrincipal;
+        this.ventanaPrincipal.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
-        // Conectar al servidor al iniciar el controlador (opcional, pero recomendado).
-        this.comunicadorServidor.conectar();
+
+        // Intentar conectar al servidor hasta que se logre la conexión o el usuario decida salir.
+        while(!comunicadorServidor.isServidorActivo()) {
+            comunicadorServidor.conectar();
+            if (!comunicadorServidor.isServidorActivo()) {
+                int respuesta = JOptionPane.showConfirmDialog(
+                        null,
+                        "No se pudo conectar al servidor. ¿Desea intentar nuevamente?",
+                        "Error de conexión",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.ERROR_MESSAGE
+                );
+                if (respuesta != JOptionPane.YES_OPTION) {
+                    System.exit(0);  // Finaliza la aplicación si el usuario decide no reconectar
+                }
+            }
+        }
+
+        // Conexión establecida: ahora se muestra la ventana principal.
+        JOptionPane.showMessageDialog(null, "Conexion establecida con exito!");
+        this.ventanaPrincipal.setVisible(true);
         this.ventanaPrincipal.agregarActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
         // Botón para mostrar la ventana de registro de nuevos usuarios
         if (e.getSource() == ventanaPrincipal.getBotonRegistrarse()) {
             if (ventanaRegistro == null) {
@@ -66,7 +87,7 @@ public class Controlador implements ActionListener {
     }
 
     /**
-     * Maneja el proceso de registro de un nuevo usuario.
+     * Maneja el proceso de registro de un nuevo usuario. -------------------------------------------------------------
      */
     private void manejarRegistro() {
         // Obtener datos de la ventana de registro
@@ -103,7 +124,7 @@ public class Controlador implements ActionListener {
     }
 
     /**
-     * Muestra la ventana de consulta configurada para solicitar el ID.
+     * Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
      */
     private void mostrarVentanaConsultaId() {
         if (ventanaConsulta == null) {
@@ -115,7 +136,7 @@ public class Controlador implements ActionListener {
     }
 
     /**
-     * Muestra la ventana de consulta configurada para solicitar el número de cuenta.
+     * Muestra la ventana de consulta configurada para solicitar el número de cuenta.---------------------------------------------------
      */
     private void mostrarVentanaConsultaCuenta() {
         if (ventanaConsulta == null) {
@@ -127,7 +148,7 @@ public class Controlador implements ActionListener {
     }
 
     /**
-     * Maneja la consulta de saldo según el ID o número de cuenta ingresado.
+     * Maneja la consulta de saldo según el ID o número de cuenta ingresado.-------------------------------------------------------
      */
     private void manejarConsultaSaldo() {
         String id = ventanaConsulta.getIdUsuario();

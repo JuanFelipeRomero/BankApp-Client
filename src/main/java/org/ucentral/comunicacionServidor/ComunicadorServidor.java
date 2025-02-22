@@ -26,6 +26,10 @@ public class ComunicadorServidor {
         return instancia;
     }
 
+    public boolean isServidorActivo() {
+        return servidorActivo;
+    }
+
     public void conectar() {
         try {
             if (socket == null || socket.isClosed()) {
@@ -37,13 +41,13 @@ public class ComunicadorServidor {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "No se pudo conectar al servidor");
+            //JOptionPane.showMessageDialog(null, "No se pudo conectar al servidor");
             servidorActivo = false;
             System.err.println("No se pudo conectar al servidor.");
         }
     }
 
-    // Método síncrono: envía la solicitud y espera la respuesta inmediatamente.
+    // Método síncrono: envía la solicitud y espera la respuesta inmediatamente. ---------------------------------------------------------
     public String enviarSolicitud(String solicitud) {
         if (out != null && servidorActivo) {
             out.println(solicitud);
