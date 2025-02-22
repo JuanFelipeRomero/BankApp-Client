@@ -52,7 +52,7 @@ public class Controlador implements ActionListener {
             ventanaOpcionesConsulta.setVisible(true);
         }
         // Botón para consultar saldo por identificación
-        else if (ventanaOpcionesConsulta != null && e.getSource() == ventanaOpcionesConsulta.getBotonConsultarConId()) {
+        else if (ventanaOpcionesConsulta != null && e.getSource() == ventanaOpcionesConsulta.getBotonConsultarConCedula()) {
             mostrarVentanaConsultaId();
         }
         // Botón para consultar saldo por número de cuenta
@@ -71,7 +71,7 @@ public class Controlador implements ActionListener {
     private void manejarRegistro() {
         // Obtener datos de la ventana de registro
         String nombre = ventanaRegistro.getNombre();
-        String id = ventanaRegistro.getId();
+        String id = ventanaRegistro.getCedula();
         String correo = ventanaRegistro.getCorreo();
         String contrasena = ventanaRegistro.getContrasena();
 
@@ -110,7 +110,7 @@ public class Controlador implements ActionListener {
             ventanaConsulta = new VentanaConsulta();
             ventanaConsulta.agregarActionListener(this);
         }
-        ventanaConsulta.mostrarCampoId();
+        ventanaConsulta.mostrarCampoCedula();
         ventanaConsulta.setVisible(true);
     }
 

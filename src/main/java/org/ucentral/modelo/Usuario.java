@@ -1,15 +1,15 @@
 package org.ucentral.modelo;
 
 public class Usuario {
-    private String id;
+    private String cedula;
     private String nombre;
     private String correo;
     private String contrasena;
     private CuentaBancaria cuentaBancaria;
 
 
-    public Usuario(String id, String nombre, String correo, String contrasena, CuentaBancaria cuentaBancaria) {
-        this.id = id;
+    public Usuario(String cedula, String nombre, String correo, String contrasena, CuentaBancaria cuentaBancaria) {
+        this.cedula = cedula;
         this.nombre = nombre;
         this.correo = correo;
         this.contrasena = contrasena;
@@ -17,11 +17,11 @@ public class Usuario {
     }
 
     public String getId() {
-        return id;
+        return cedula;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.cedula = id;
     }
 
     public String getNombre() {

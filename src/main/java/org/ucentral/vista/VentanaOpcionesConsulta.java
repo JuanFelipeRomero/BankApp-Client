@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class VentanaOpcionesConsulta extends JFrame {
 
-    private JButton botonConsultarConId;
+    private JButton botonConsultarConCedula;
     private JButton botonConsultarConCuenta;
 
     public VentanaOpcionesConsulta() {
@@ -16,13 +16,13 @@ public class VentanaOpcionesConsulta extends JFrame {
         setLocationRelativeTo(null);
 
         // Crear botones
-        botonConsultarConId = new JButton("Consultar saldo con ID");
+        botonConsultarConCedula = new JButton("Consultar saldo con Cedula");
         botonConsultarConCuenta = new JButton("Consultar saldo con número de cuenta");
 
         // Crear panel y agregar botones
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
-        panel.add(botonConsultarConId);
+        panel.add(botonConsultarConCedula);
         panel.add(botonConsultarConCuenta);
 
         // Agregar panel al frame
@@ -32,8 +32,8 @@ public class VentanaOpcionesConsulta extends JFrame {
     }
 
     // Getters para los botones
-    public JButton getBotonConsultarConId() {
-        return botonConsultarConId;
+    public JButton getBotonConsultarConCedula() {
+        return botonConsultarConCedula;
     }
 
     public JButton getBotonConsultarConCuenta() {
@@ -42,7 +42,7 @@ public class VentanaOpcionesConsulta extends JFrame {
 
     // Método para agregar ActionListener a los botones
     public void agregarActionListener(ActionListener listener) {
-        botonConsultarConId.addActionListener(listener);
+        botonConsultarConCedula.addActionListener(listener);
         botonConsultarConCuenta.addActionListener(listener);
     }
 }

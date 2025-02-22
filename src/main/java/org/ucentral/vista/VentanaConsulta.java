@@ -6,8 +6,8 @@ import java.awt.event.ActionListener;
 
 public class VentanaConsulta extends JFrame {
 
-    private JLabel etiquetaId;
-    private JTextField campoId;
+    private JLabel etiquetaCedula;
+    private JTextField campoCedula;
     private JLabel etiquetaNumeroCuenta;
     private JTextField campoNumeroCuenta;
     private JButton botonConsultar;
@@ -22,8 +22,8 @@ public class VentanaConsulta extends JFrame {
         setLocationRelativeTo(null);
 
         // Crear componentes
-        etiquetaId = new JLabel("ID de usuario:");
-        campoId = new JTextField(10);
+        etiquetaCedula = new JLabel("Cedula:");
+        campoCedula = new JTextField(10);
         etiquetaNumeroCuenta = new JLabel("Número de cuenta:");
         campoNumeroCuenta = new JTextField(10);
         botonConsultar = new JButton("Consultar");
@@ -53,7 +53,7 @@ public class VentanaConsulta extends JFrame {
 
     // Getters para obtener los valores de los campos
     public String getIdUsuario() {
-        return campoId.getText();
+        return campoCedula.getText();
     }
 
     public String getNumeroCuenta() {
@@ -61,11 +61,11 @@ public class VentanaConsulta extends JFrame {
     }
 
     // Métodos para mostrar/ocultar campos según la opción de consulta
-    public void mostrarCampoId() {
+    public void mostrarCampoCedula() {
         panel.removeAll();
         panel.setLayout(new GridLayout(3, 2, 10, 10));
-        panel.add(etiquetaId);
-        panel.add(campoId);
+        panel.add(etiquetaCedula);
+        panel.add(campoCedula);
         panel.add(new JLabel());
         panel.add(botonConsultar);
         panel.add(etiquetaSaldo);

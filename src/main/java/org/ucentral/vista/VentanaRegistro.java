@@ -8,8 +8,8 @@ public class VentanaRegistro extends JFrame {
 
     private JLabel etiquetaNombre;
     private JTextField campoNombre;
-    private JLabel etiquetaId;
-    private JTextField campoId;
+    private JLabel etiquetaCedula;
+    private JTextField campoCedula;
     private JLabel etiquetaCorreo;
     private JTextField campoCorreo;
     private JLabel etiquetaContrasena;
@@ -25,8 +25,8 @@ public class VentanaRegistro extends JFrame {
         // Crear componentes
         etiquetaNombre = new JLabel("Nombre:");
         campoNombre = new JTextField(20);
-        etiquetaId = new JLabel("ID:");
-        campoId = new JTextField(10);
+        etiquetaCedula = new JLabel("Cedula:");
+        campoCedula = new JTextField(10);
         etiquetaCorreo = new JLabel("Correo:");
         campoCorreo = new JTextField(20);
         etiquetaContrasena = new JLabel("Contraseña:");
@@ -38,8 +38,8 @@ public class VentanaRegistro extends JFrame {
         panel.setLayout(new GridLayout(5, 2, 10, 10));
         panel.add(etiquetaNombre);
         panel.add(campoNombre);
-        panel.add(etiquetaId);
-        panel.add(campoId);
+        panel.add(etiquetaCedula);
+        panel.add(campoCedula);
         panel.add(etiquetaCorreo);
         panel.add(campoCorreo);
         panel.add(etiquetaContrasena);
@@ -58,8 +58,8 @@ public class VentanaRegistro extends JFrame {
         return campoNombre.getText();
     }
 
-    public String getId() {
-        return campoId.getText();
+    public String getCedula() {
+        return campoCedula.getText();
     }
 
     public String getCorreo() {
