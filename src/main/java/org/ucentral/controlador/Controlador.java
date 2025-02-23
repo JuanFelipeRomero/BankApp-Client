@@ -2,10 +2,7 @@ package org.ucentral.controlador;
 
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
-import org.ucentral.vista.VentanaConsulta;
-import org.ucentral.vista.VentanaOpcionesConsulta;
-import org.ucentral.vista.VentanaPrincipal;
-import org.ucentral.vista.VentanaRegistro;
+import org.ucentral.vista.*;
 import com.google.gson.Gson;
 
 import javax.swing.*;
@@ -22,6 +19,7 @@ public class Controlador implements ActionListener {
     private ComunicadorServidor comunicadorServidor;
 
     public Controlador(VentanaPrincipal ventanaPrincipal) {
+
         this.ventanaPrincipal = ventanaPrincipal;
         this.ventanaPrincipal.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
@@ -57,8 +55,9 @@ public class Controlador implements ActionListener {
             // Verificamos nuevamente con el ping
             return comunicadorServidor.enviarPing();
         }
-
+        System.exit(0);
         return false;
+
 
     }
 

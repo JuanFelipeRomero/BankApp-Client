@@ -5,6 +5,9 @@ import org.ucentral.vista.VentanaPrincipal;
 
 public class Main {
     public static void main(String[] args) {
+
+       // Ventana ventana = new Ventana();
+
         VentanaPrincipal vista = new VentanaPrincipal();
         Controlador controlador = new Controlador(vista);
         System.out.println("Iniciando aplicacion...");
