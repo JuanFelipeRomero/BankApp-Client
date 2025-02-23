@@ -47,6 +47,40 @@ public class ComunicadorServidor {
         }
     }
 
+    //Enviar ping para verificar la conexion
+    public boolean enviarPing() {
+        if (servidorActivo && out != null && in != null) {
+            try {
+                String mensajePing = "{\"tipoOperacion\":\"ping\"}";
+                out.println(mensajePing);
+                System.out.println("Ping enviado al servidor: " + mensajePing);
+
+                String respuesta = in.readLine();
+                if (respuesta != null && respuesta.contains("pong")) {
+                    System.out.println("Respuesta de ping recibida: " + respuesta);
+                    return true;
+                } else {
+                    System.err.println("No se recibió una respuesta de ping válida.");
+                }
+            } catch (IOException e) {
+                // Aquí capturamos el error de conexión (por ejemplo, Connection reset)
+                System.err.println("Error al enviar/recibir el ping: " + e.getMessage());
+                servidorActivo = false;
+                // Intentamos cerrar el socket para liberarlo y permitir una reconexión limpia.
+
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+
     // Método síncrono: envía la solicitud y espera la respuesta inmediatamente. ---------------------------------------------------------
     public String enviarSolicitud(String solicitud) {
         if (out != null && servidorActivo) {

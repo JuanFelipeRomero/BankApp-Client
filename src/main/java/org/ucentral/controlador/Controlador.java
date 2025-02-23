@@ -29,18 +29,7 @@ public class Controlador implements ActionListener {
         // Intentar conectar al servidor hasta que se logre la conexión o el usuario decida salir.
         while(!comunicadorServidor.isServidorActivo()) {
             comunicadorServidor.conectar();
-            if (!comunicadorServidor.isServidorActivo()) {
-                int respuesta = JOptionPane.showConfirmDialog(
-                        null,
-                        "No se pudo conectar al servidor. ¿Desea intentar nuevamente?",
-                        "Error de conexión",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.ERROR_MESSAGE
-                );
-                if (respuesta != JOptionPane.YES_OPTION) {
-                    System.exit(0);  // Finaliza la aplicación si el usuario decide no reconectar
-                }
-            }
+            verificarConexion();
         }
 
         // Conexión establecida: ahora se muestra la ventana principal.
@@ -49,11 +38,41 @@ public class Controlador implements ActionListener {
         this.ventanaPrincipal.agregarActionListener(this);
     }
 
+    private boolean verificarConexion() {
+        // Verificamos con el ping
+        if (comunicadorServidor.enviarPing()) {
+            return true;
+        }
+        // Si falla, mostramos el diálogo para intentar reconectar
+        int respuesta = JOptionPane.showConfirmDialog(
+                null,
+                "No se pudo conectar al servidor. ¿Desea intentar nuevamente?",
+                "Error de conexión",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.ERROR_MESSAGE
+        );
+        if (respuesta == JOptionPane.YES_OPTION) {
+            // Intentamos reconectar (esto crea un nuevo socket, etc.)
+            comunicadorServidor.conectar();
+            // Verificamos nuevamente con el ping
+            return comunicadorServidor.enviarPing();
+        }
+
+        return false;
+
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        //verifica la conexion antes de cualquier operacion
+        if (!verificarConexion()) {
+            return;
+        }
+
         // Botón para mostrar la ventana de registro de nuevos usuarios
         if (e.getSource() == ventanaPrincipal.getBotonRegistrarse()) {
+
             if (ventanaRegistro == null) {
                 ventanaRegistro = new VentanaRegistro();
                 ventanaRegistro.agregarActionListener(this);
