@@ -1,36 +1,30 @@
 package org.ucentral.vista;
-import javax.swing.border.AbstractBorder;
+import org.ucentral.comunicacionServidor.ComunicadorServidor;
+
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionListener;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class VentanaPrincipalN  extends JFrame{
-    private JButton botonIniciarSesion;
-    private JButton botonConsultarSaldo;
-    private JButton botonRegistrarse;
     private JPanel contentPane;
+    private JLabel appBancariaLabel;
+    private JButton botonIniciarSesion;
+    private JButton botonRegistrarse;
+    private JButton botonConsultarSaldo;
 
-    public VentanaPrincipalN () {
 
+    public VentanaPrincipalN() {
+        // Asegurar que la UI generada por IntelliJ se usa correctamente
+        setContentPane(contentPane);
         setTitle("Aplicación Bancaria");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(350, 325);
         setLocationRelativeTo(null);
 
-        //Crear
-        botonRegistrarse = new JButton("Registrarse");
-        botonIniciarSesion = new JButton("Iniciar Sesion");
-        botonConsultarSaldo = new JButton("Consultar Saldo");
+        // Conectar al servidor al iniciar la aplicación
+        ComunicadorServidor.getInstance().conectar();
 
-
-        // Crear panel y agregar botones
-        JPanel contentPane = new JPanel();
-        contentPane.setLayout(new GridLayout());
-        contentPane.add(botonRegistrarse);
-        contentPane.add(botonIniciarSesion);
-        contentPane.add(botonConsultarSaldo);
-
-        add(contentPane);
         setVisible(true);
     }
 
@@ -39,7 +33,7 @@ public class VentanaPrincipalN  extends JFrame{
         return botonRegistrarse;
     }
 
-    public JButton getBotonYaSoyUsuario() {
+    public JButton getBotonIniciarSesion() {
         return botonIniciarSesion;
     }
 
@@ -53,6 +47,7 @@ public class VentanaPrincipalN  extends JFrame{
     //Metodo para agregar ActionListener a los botones
     public void agregarActionListener(ActionListener listener) {
         botonRegistrarse.addActionListener(listener);
+        botonIniciarSesion.addActionListener(listener);
         botonConsultarSaldo.addActionListener(listener);
     }
 }

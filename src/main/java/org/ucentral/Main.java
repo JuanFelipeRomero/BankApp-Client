@@ -1,14 +1,12 @@
 package org.ucentral;
 
 import org.ucentral.controlador.Controlador;
-import org.ucentral.vista.VentanaPrincipal;
+import org.ucentral.vista.VentanaPrincipalN;
 
 public class Main {
     public static void main(String[] args) {
 
-       // Ventana ventana = new Ventana();
-
-        VentanaPrincipal vista = new VentanaPrincipal();
+        VentanaPrincipalN vista = new VentanaPrincipalN();
         Controlador controlador = new Controlador(vista);
         System.out.println("Iniciando aplicacion...");
     }

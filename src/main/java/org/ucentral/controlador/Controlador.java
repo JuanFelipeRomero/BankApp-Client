@@ -12,16 +12,19 @@ import java.util.Map;
 
 public class Controlador implements ActionListener {
 
-    private VentanaPrincipal ventanaPrincipal;
-    private VentanaRegistro ventanaRegistro;
-    private VentanaOpcionesConsulta ventanaOpcionesConsulta;
-    private VentanaConsulta ventanaConsulta;
+    private VentanaPrincipalN ventanaPrincipalN;
+    private VentanaRegistroN ventanaRegistroN;
+    private VentanaInicioSesion ventanaInicioSesion;
+    private VentanaOpcionesConsultaN ventanaOpcionesConsultaN;
+    private VentanaConsultaN ventanaConsultaN;
     private ComunicadorServidor comunicadorServidor;
 
-    public Controlador(VentanaPrincipal ventanaPrincipal) {
+    public Controlador(VentanaPrincipalN ventanaPrincipalN) {
 
-        this.ventanaPrincipal = ventanaPrincipal;
-        this.ventanaPrincipal.setVisible(false);
+        this.ventanaPrincipalN = ventanaPrincipalN;
+
+        //-------------------
+        this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
         // Intentar conectar al servidor hasta que se logre la conexión o el usuario decida salir.
@@ -32,8 +35,8 @@ public class Controlador implements ActionListener {
 
         // Conexión establecida: ahora se muestra la ventana principal.
         JOptionPane.showMessageDialog(null, "Conexion establecida con exito!");
-        this.ventanaPrincipal.setVisible(true);
-        this.ventanaPrincipal.agregarActionListener(this);
+        this.ventanaPrincipalN.setVisible(true);
+        this.ventanaPrincipalN.agregarActionListener(this);
     }
 
     private boolean verificarConexion() {
@@ -70,36 +73,49 @@ public class Controlador implements ActionListener {
         }
 
         // Botón para mostrar la ventana de registro de nuevos usuarios
-        if (e.getSource() == ventanaPrincipal.getBotonRegistrarse()) {
+        if (e.getSource() == ventanaPrincipalN.getBotonRegistrarse()) {
 
-            if (ventanaRegistro == null) {
-                ventanaRegistro = new VentanaRegistro();
-                ventanaRegistro.agregarActionListener(this);
+            if (ventanaRegistroN == null) {
+                ventanaRegistroN = new VentanaRegistroN();
+                ventanaRegistroN.agregarActionListener(this);
             }
-            ventanaRegistro.setVisible(true);
+            ventanaRegistroN.setVisible(true);
         }
         // Botón para registrar un nuevo usuario
-        else if (ventanaRegistro != null && e.getSource() == ventanaRegistro.getBotonRegistrar()) {
+        else if (ventanaRegistroN != null && e.getSource() == ventanaRegistroN.getBotonRegistrar()) {
             manejarRegistro();
         }
-        // Botón para mostrar la ventana de opciones de consulta (ya soy usuario)
-        else if (e.getSource() == ventanaPrincipal.getBotonYaSoyUsuario()) {
-            if (ventanaOpcionesConsulta == null) {
-                ventanaOpcionesConsulta = new VentanaOpcionesConsulta();
-                ventanaOpcionesConsulta.agregarActionListener(this);
+
+        //Boton para mostar pantalla de inicio de sesion
+        else if (e.getSource() == ventanaPrincipalN.getBotonIniciarSesion()) {
+            if (ventanaInicioSesion == null) {
+                ventanaInicioSesion = new VentanaInicioSesion();
+                ventanaInicioSesion.agregarActionListener(this);
             }
-            ventanaOpcionesConsulta.setVisible(true);
+            ventanaInicioSesion.setVisible(true);
         }
+
+
+        // Botón para mostrar la ventana de opciones de consulta
+        else if (e.getSource() == ventanaPrincipalN.getBotonConsultarSaldo()) {
+            if (ventanaOpcionesConsultaN == null) {
+                ventanaOpcionesConsultaN= new VentanaOpcionesConsultaN();
+                ventanaOpcionesConsultaN.agregarActionListener(this);
+            }
+            ventanaOpcionesConsultaN.setVisible(true);
+        }
+
+
         // Botón para consultar saldo por identificación
-        else if (ventanaOpcionesConsulta != null && e.getSource() == ventanaOpcionesConsulta.getBotonConsultarConCedula()) {
+        else if (ventanaOpcionesConsultaN != null && e.getSource() == ventanaOpcionesConsultaN.getBotonConsultarConCedula()) {
             mostrarVentanaConsultaId();
         }
         // Botón para consultar saldo por número de cuenta
-        else if (ventanaOpcionesConsulta != null && e.getSource() == ventanaOpcionesConsulta.getBotonConsultarConCuenta()) {
+        else if (ventanaOpcionesConsultaN != null && e.getSource() == ventanaOpcionesConsultaN.getBotonConsultarConCuenta()) {
             mostrarVentanaConsultaCuenta();
         }
         // Botón para realizar la consulta de saldo
-        else if (ventanaConsulta != null && e.getSource() == ventanaConsulta.getBotonConsultar()) {
+        else if (ventanaConsultaN != null && e.getSource() == ventanaConsultaN.getBotonConsultar()) {
             manejarConsultaSaldo();
         }
     }
@@ -109,14 +125,14 @@ public class Controlador implements ActionListener {
      */
     private void manejarRegistro() {
         // Obtener datos de la ventana de registro
-        String nombre = ventanaRegistro.getNombre();
-        String id = ventanaRegistro.getCedula();
-        String correo = ventanaRegistro.getCorreo();
-        String contrasena = ventanaRegistro.getContrasena();
+        String nombre = ventanaRegistroN.getNombre();
+        String id = ventanaRegistroN.getCedula();
+        String correo = ventanaRegistroN.getCorreo();
+        String contrasena = ventanaRegistroN.getContrasena();
 
         // Validar los datos del usuario
         if (nombre.isEmpty() || id.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
-            ventanaRegistro.mostrarError("Debe completar todos los campos.");
+            ventanaRegistroN.mostrarError("Debe completar todos los campos.");
             return;
         }
 
@@ -145,36 +161,36 @@ public class Controlador implements ActionListener {
      * Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
      */
     private void mostrarVentanaConsultaId() {
-        if (ventanaConsulta == null) {
-            ventanaConsulta = new VentanaConsulta();
-            ventanaConsulta.agregarActionListener(this);
+        if (ventanaConsultaN == null) {
+            ventanaConsultaN = new VentanaConsultaN();
+            ventanaConsultaN.agregarActionListener(this);
         }
-        ventanaConsulta.mostrarCampoCedula();
-        ventanaConsulta.setVisible(true);
+        ventanaConsultaN.mostrarCampoCedula();
+        ventanaConsultaN.setVisible(true);
     }
 
     /**
      * Muestra la ventana de consulta configurada para solicitar el número de cuenta.---------------------------------------------------
      */
     private void mostrarVentanaConsultaCuenta() {
-        if (ventanaConsulta == null) {
-            ventanaConsulta = new VentanaConsulta();
-            ventanaConsulta.agregarActionListener(this);
+        if (ventanaConsultaN== null) {
+            ventanaConsultaN = new VentanaConsultaN();
+            ventanaConsultaN.agregarActionListener(this);
         }
-        ventanaConsulta.mostrarCampoNumeroCuenta();
-        ventanaConsulta.setVisible(true);
+        ventanaConsultaN.mostrarCampoNumeroCuenta();
+        ventanaConsultaN.setVisible(true);
     }
 
     /**
      * Maneja la consulta de saldo según el ID o número de cuenta ingresado.-------------------------------------------------------
      */
     private void manejarConsultaSaldo() {
-        String id = ventanaConsulta.getIdUsuario();
-        String numeroCuenta = ventanaConsulta.getNumeroCuenta();
+        String id = ventanaConsultaN.getCedula();
+        String numeroCuenta = ventanaConsultaN.getNumeroCuenta();
 
         // Validar que se haya ingresado al menos un dato
         if (id.isEmpty() && numeroCuenta.isEmpty()) {
-            ventanaConsulta.mostrarError("Debe ingresar un ID o un número de cuenta.");
+            ventanaConsultaN.mostrarError("Debe ingresar un ID o un número de cuenta.");
             return;
         }
 
@@ -219,20 +235,20 @@ public class Controlador implements ActionListener {
                         Object saldoObj = datos.get("saldo");
                         // Convertirlo a double (puede ser Double, Integer, etc.)
                         double saldo = ((Number) saldoObj).doubleValue();
-                        ventanaConsulta.mostrarSaldo(saldo);
+                        ventanaConsultaN.mostrarSaldo(saldo);
                     } else {
-                        ventanaConsulta.mostrarError("No se encontró el campo 'saldo' en la respuesta.");
+                        ventanaConsultaN.mostrarError("No se encontró el campo 'saldo' en la respuesta.");
                     }
                 } else {
                     // Si el código no es 200, mostrar el mensaje de error del servidor
-                    ventanaConsulta.mostrarError("Error: " + resp.getMensaje());
+                    ventanaConsultaN.mostrarError("Error: " + resp.getMensaje());
                 }
             } catch (Exception ex) {
                 // Error al parsear la respuesta
-                ventanaConsulta.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+                ventanaConsultaN.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
             }
         } else {
-            ventanaConsulta.mostrarError("Error al obtener respuesta del servidor (respuesta nula o vacía).");
+            ventanaConsultaN.mostrarError("Error al obtener respuesta del servidor (respuesta nula o vacía).");
         }
     }
 
@@ -264,16 +280,17 @@ public class Controlador implements ActionListener {
                     String msg = "Cuenta creada exitosamente.\n"
                             + "Titular: " + titular + "\n"
                             + "Número de cuenta: " + numeroCuenta;
-                    ventanaRegistro.mostrarMensaje(msg);
+                    ventanaRegistroN.mostrarMensaje(msg);
+                    ventanaRegistroN.dispose();
                 } else {
                     // Error en la creación de la cuenta
-                    ventanaRegistro.mostrarError("Error: " + resp.getMensaje());
+                    ventanaRegistroN.mostrarError("Error: " + resp.getMensaje());
                 }
             } catch (Exception ex) {
-                ventanaRegistro.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+                ventanaRegistroN.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
             }
         } else {
-            ventanaRegistro.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+            ventanaRegistroN.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
         }
     }
 }
