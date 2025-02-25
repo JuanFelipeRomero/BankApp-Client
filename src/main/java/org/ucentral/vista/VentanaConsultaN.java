@@ -47,6 +47,7 @@ public class VentanaConsultaN extends JFrame {
         contentPane.add(botonConsultar);
         contentPane.add(etiquetaSaldo);
         contentPane.add(campoSaldo);
+        campoSaldo.setText("");
         contentPane.revalidate();
         contentPane.repaint();
     }
@@ -61,6 +62,7 @@ public class VentanaConsultaN extends JFrame {
         contentPane.add(botonConsultar);
         contentPane.add(etiquetaSaldo);
         contentPane.add(campoSaldo);
+        campoSaldo.setText("");
         contentPane.revalidate();
         contentPane.repaint();
     }
