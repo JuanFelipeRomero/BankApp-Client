@@ -47,7 +47,7 @@
         <properties>
           <font name="Yu Gothic UI Semibold" size="14"/>
           <labelFor value="d0287"/>
-          <text value="Contraseñaa"/>
+          <text value="Contraseña"/>
         </properties>
       </component>
       <component id="d0287" class="javax.swing.JPasswordField" binding="campoContrasena">

@@ -381,8 +381,7 @@ public class Controlador implements ActionListener {
                     }
 
                     // Mostrar mensaje de éxito al usuario
-                    String msg = "Login exitoso.\n"
-                            + "idSession: " + loginIdSession + "\n";
+                    String msg = "Bienvenido";
                     ventanaInicioSesion.mostrarMensaje(msg);
                     ventanaInicioSesion.dispose();
                     if (ventanaInicio == null) {
@@ -417,6 +416,8 @@ public class Controlador implements ActionListener {
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
                 if (resp.getCodigo() == 200) {
+                    correoLogin = null;
+                    loginIdSession = null;
                     System.out.println("Sesion cerrada exitosamente.");
 
                 } else {
