@@ -20,17 +20,17 @@
           <text value="Iniciar Sesion"/>
         </properties>
       </component>
-      <component id="e09c6" class="javax.swing.JLabel" binding="etiquetaCedula">
+      <component id="e09c6" class="javax.swing.JLabel" binding="etiquetaCorreo">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <font name="Yu Gothic UI Semibold" size="14"/>
           <labelFor value="aac84"/>
-          <text value="Cedula"/>
+          <text value="Correo"/>
         </properties>
       </component>
-      <component id="aac84" class="javax.swing.JTextField" binding="campoCedula">
+      <component id="aac84" class="javax.swing.JTextField" binding="campoCorreo">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>

@@ -2,12 +2,19 @@ package org.ucentral.controlador;
 
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
+import org.ucentral.dto.SolicitudDTO;
 import org.ucentral.vista.*;
 import com.google.gson.Gson;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Controlador implements ActionListener {
@@ -17,13 +24,14 @@ public class Controlador implements ActionListener {
     private VentanaInicioSesion ventanaInicioSesion;
     private VentanaOpcionesConsultaN ventanaOpcionesConsultaN;
     private VentanaConsultaN ventanaConsultaN;
+    private VentanaInicio ventanaInicio;
     private ComunicadorServidor comunicadorServidor;
+    private static String correoLogin;
+    private static String loginIdSession;
 
     public Controlador(VentanaPrincipalN ventanaPrincipalN) {
 
         this.ventanaPrincipalN = ventanaPrincipalN;
-
-        //-------------------
         this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
@@ -61,7 +69,6 @@ public class Controlador implements ActionListener {
         System.exit(0);
         return false;
 
-
     }
 
     @Override
@@ -95,7 +102,6 @@ public class Controlador implements ActionListener {
             ventanaInicioSesion.setVisible(true);
         }
 
-
         // Botón para mostrar la ventana de opciones de consulta
         else if (e.getSource() == ventanaPrincipalN.getBotonConsultarSaldo()) {
             if (ventanaOpcionesConsultaN == null) {
@@ -117,6 +123,11 @@ public class Controlador implements ActionListener {
         // Botón para realizar la consulta de saldo
         else if (ventanaConsultaN != null && e.getSource() == ventanaConsultaN.getBotonConsultar()) {
             manejarConsultaSaldo();
+        }
+
+        //Bton para login
+        else if (ventanaInicioSesion != null && e.getSource() == ventanaInicioSesion.getBotonIniciarSesion() ) {
+            manejarLogin();
         }
     }
 
@@ -156,6 +167,63 @@ public class Controlador implements ActionListener {
         // Procesar la respuesta del servidor
         procesarRespuestaRegistro(respuestaRegistro);
     }
+
+    /**
+     * Maneja el proceso de login de usuarios. -------------------------------------------------------------
+     */
+
+    private void manejarLogin() {
+        //Obtener credenciales de los campos
+        String correo = ventanaInicioSesion.getCorreo();
+        String contrasena = ventanaInicioSesion.getContrasena();
+
+        //Validar que los campos no esten vacios
+        if (correo.isEmpty() || contrasena.isEmpty()) {
+            ventanaInicioSesion.mostrarError("Debes completar todos los campos");
+            return;
+        }
+
+        String tipoOperacion = "login";
+        String datos = "{"
+                + "\"correo\": \"" + correo + "\","
+                + "\"contrasena\": \"" + contrasena + "\""
+                + "}";
+
+        String solicitudLogin = "{"
+                + "\"tipoOperacion\": \"" + tipoOperacion + "\","
+                + "\"datos\": " + datos
+                + "}";
+
+        // Enviar solicitud de registro al servidor
+        String respuestaLogin = comunicadorServidor.enviarSolicitud(solicitudLogin);
+
+        // Procesar la respuesta del servidor
+        procesarRespuestaLogin(respuestaLogin);
+
+    }
+
+    //Logout----------------------------------------------------------------
+    private void manejarLogout () {
+        //Obtener los datos necesarios para logout
+        String tipoOperacion = "logout";
+        String datos =  "{"
+                + "\"idSesion\": \"" +  loginIdSession + "\","
+                + "\"correo\": \"" + correoLogin + "\""
+                + "}";
+
+        String solicitudLogout = "{"
+                + "\"tipoOperacion\": \"" + tipoOperacion + "\","
+                + "\"datos\": " + datos
+                + "}";
+
+        // Enviar solicitud de registro al servidor
+        String respuestaLogout = comunicadorServidor.enviarSolicitud(solicitudLogout);
+
+        // Procesar la respuesta del servidor
+        procesarRespuestaLogout(respuestaLogout);
+    }
+
+
 
     /**
      * Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
@@ -291,6 +359,74 @@ public class Controlador implements ActionListener {
             }
         } else {
             ventanaRegistroN.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+        }
+    }
+
+
+    private void procesarRespuestaLogin(String respuesta) {
+        if (respuesta != null && !respuesta.isEmpty()) {
+            try {
+                Gson gson = new Gson();
+                RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
+
+                if (resp.getCodigo() == 200) {
+                    // Éxito en el login
+                    Map<String, Object> datos = resp.getDatos();
+                    if (datos.containsKey("idSesion")) {
+                        loginIdSession = datos.get("idSesion").toString();
+                    }
+
+                    if (datos.containsKey("correo")) {
+                        correoLogin = datos.get("correo").toString();
+                    }
+
+                    // Mostrar mensaje de éxito al usuario
+                    String msg = "Login exitoso.\n"
+                            + "idSession: " + loginIdSession + "\n";
+                    ventanaInicioSesion.mostrarMensaje(msg);
+                    ventanaInicioSesion.dispose();
+                    if (ventanaInicio == null) {
+                        ventanaInicio = new VentanaInicio();
+                        ventanaInicio.setVisible(true);
+                    }
+
+                    ventanaInicio.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            manejarLogout(); // Llamar logout al cerrar ventana
+                        }
+                    });
+
+
+                } else {
+                    // Error en la creación de la cuenta
+                    ventanaInicioSesion.mostrarError("Error: " + resp.getMensaje());
+                }
+            } catch (Exception ex) {
+                ventanaInicioSesion.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+            }
+        } else {
+            ventanaInicioSesion.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+        }
+    }
+
+    private void procesarRespuestaLogout(String respuesta) {
+        if (respuesta != null && !respuesta.isEmpty()) {
+            try {
+                Gson gson = new Gson();
+                RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
+
+                if (resp.getCodigo() == 200) {
+                    System.out.println("Sesion cerrada exitosamente.");
+
+                } else {
+                    ventanaInicioSesion.mostrarError("Error: " + resp.getMensaje());
+                }
+            } catch (Exception ex) {
+                ventanaInicioSesion.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+            }
+        } else {
+            ventanaInicioSesion.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
         }
     }
 }

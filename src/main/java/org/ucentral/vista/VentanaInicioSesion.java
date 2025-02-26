@@ -6,24 +6,24 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 
 public class VentanaInicioSesion extends JFrame {
-    private JTextField campoCedula;
+    private JTextField campoCorreo;
     private JPasswordField campoContrasena;
     private JButton botonIniciarSesion;
-    private JLabel etiquetaCedula;
+    private JLabel etiquetaCorreo;
     private JLabel etiquetaContrasena;
     private JPanel contentPane;
 
     public VentanaInicioSesion() {
         // Asegurar que la UI generada por IntelliJ se usa correctamente
-        setContentPane(contentPane);
-        setTitle("Iniciar Sesion");
-        setSize(350, 325);
-        setLocationRelativeTo(null);
-        setVisible(true);
+            setContentPane(contentPane);
+            setTitle("Iniciar Sesion");
+            setSize(350, 325);
+            setLocationRelativeTo(null);
+            setVisible(true);
     }
 
-    public String getCedula() {
-        return campoCedula.getText();
+    public String getCorreo() {
+        return campoCorreo.getText();
     }
 
     public String getContrasena() {
@@ -32,6 +32,14 @@ public class VentanaInicioSesion extends JFrame {
 
     public JButton getBotonIniciarSesion() {
         return botonIniciarSesion;
+    }
+
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje);
+    }
+
+    public void mostrarError(String error) {
+        JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     //ActionListeners
