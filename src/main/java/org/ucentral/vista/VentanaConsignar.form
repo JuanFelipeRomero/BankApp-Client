@@ -60,7 +60,7 @@
           <font name="Yu Gothic UI Semibold" size="14"/>
         </properties>
       </component>
-      <component id="bcc92" class="javax.swing.JButton" binding="botonConsignar">
+      <component id="bcc92" class="javax.swing.JButton" binding="botonConfirmarConsignacion">
         <constraints>
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

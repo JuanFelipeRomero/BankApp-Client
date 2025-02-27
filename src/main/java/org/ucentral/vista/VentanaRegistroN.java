@@ -45,6 +45,7 @@ public class VentanaRegistroN extends JFrame {
     public JButton getBotonRegistrar() { // Agregar este método
         return botonRegistrar;
     }
+
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }

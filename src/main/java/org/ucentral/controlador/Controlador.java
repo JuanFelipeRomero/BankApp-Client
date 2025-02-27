@@ -1,8 +1,6 @@
 package org.ucentral.controlador;
-
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
-import org.ucentral.dto.SolicitudDTO;
 import org.ucentral.vista.*;
 import com.google.gson.Gson;
 import javax.swing.*;
@@ -10,11 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Controlador implements ActionListener {
@@ -25,6 +18,7 @@ public class Controlador implements ActionListener {
     private VentanaOpcionesConsultaN ventanaOpcionesConsultaN;
     private VentanaConsultaN ventanaConsultaN;
     private VentanaInicio ventanaInicio;
+    private VentanaConsignar ventanaConsignar;
     private ComunicadorServidor comunicadorServidor;
     private static String correoLogin;
     private static String loginIdSession;
@@ -35,7 +29,6 @@ public class Controlador implements ActionListener {
         this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
-        //--------------------------------------------------------------------------------------------------
 
         // Crear un diálogo modal que muestre "Conectandose al servidor..."
         final JDialog ventanaEspera = new JDialog((JFrame) null, "Conectando", true);
@@ -44,7 +37,9 @@ public class Controlador implements ActionListener {
         ventanaEspera.setSize(300, 100);
         ventanaEspera.setLocationRelativeTo(null);
 
+
         //Crear un hilo en segundo plano para los intentos de conexion
+        /*
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -96,10 +91,50 @@ public class Controlador implements ActionListener {
 
         //El dialogo se mostrara hasta que se elimine con dispose()
         ventanaEspera.setVisible(true);
+
+        */
+
+        if (comunicadorServidor.enviarPing()) {
+            SwingUtilities.invokeLater(() -> {
+                ventanaEspera.dispose();
+                JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
+                ventanaPrincipalN.setVisible(true);
+                ventanaPrincipalN.agregarActionListener(Controlador.this);
+            });
+        } else {
+            new Thread(() -> {
+                int intentos = 0;
+                while (intentos < 10) {
+                    comunicadorServidor.conectar();
+                    if (comunicadorServidor.enviarPing()) {
+                        SwingUtilities.invokeLater(() -> {
+                            ventanaEspera.dispose();
+                            JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
+                            ventanaPrincipalN.setVisible(true);
+                            ventanaPrincipalN.agregarActionListener(Controlador.this);
+                        });
+                        return;
+                    }
+                    intentos++;
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                SwingUtilities.invokeLater(() -> {
+                    ventanaEspera.dispose();
+                    JOptionPane.showMessageDialog(null,
+                            "No se pudo establecer la conexión con el servidor, intente en otro momento",
+                            "Error de conexión", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                });
+            }).start();
+        }
+        ventanaEspera.setVisible(true);
+
     }
 
-
-    //--------------------------------------------------------------------------------------------------
 
     private boolean verificarConexion() {
         // Verificamos con el ping
@@ -123,6 +158,13 @@ public class Controlador implements ActionListener {
         System.exit(0);
         return false;
     }
+
+    //_____________________________________________________________________________________________________________
+
+
+
+
+    //_____________________________________________________________________________________________________________
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -164,7 +206,6 @@ public class Controlador implements ActionListener {
             ventanaOpcionesConsultaN.setVisible(true);
         }
 
-
         // Botón para consultar saldo por identificación
         else if (ventanaOpcionesConsultaN != null && e.getSource() == ventanaOpcionesConsultaN.getBotonConsultarConCedula()) {
             mostrarVentanaConsultaId();
@@ -180,7 +221,28 @@ public class Controlador implements ActionListener {
 
         //Bton para login
         else if (ventanaInicioSesion != null && e.getSource() == ventanaInicioSesion.getBotonIniciarSesion() ) {
-            manejarLogin();
+            if(manejarLogin()){
+                if (ventanaInicio == null) {
+                    ventanaInicio = new VentanaInicio();
+                    ventanaInicio.setVisible(true);
+                }
+
+                ventanaInicio.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        manejarLogout(); // Llamar logout al cerrar ventana
+                    }
+                });
+            }
+        }
+
+        //Botón para mostrar ventana para realizar consignaciones
+        else if (ventanaInicio != null && e.getSource() == ventanaInicio.getBotonConsignar()) {
+            if (ventanaConsignar == null) {
+                ventanaConsignar = new VentanaConsignar();
+                ventanaConsignar.agregarActionListener(this);
+            }
+            ventanaConsignar.setVisible(true);
         }
     }
 
@@ -223,9 +285,10 @@ public class Controlador implements ActionListener {
 
     /**
      * Maneja el proceso de login de usuarios. -------------------------------------------------------------
+     *
+     * @return
      */
-
-    private void manejarLogin() {
+    private boolean manejarLogin() {
         //Obtener credenciales de los campos
         String correo = ventanaInicioSesion.getCorreo();
         String contrasena = ventanaInicioSesion.getContrasena();
@@ -233,7 +296,6 @@ public class Controlador implements ActionListener {
         //Validar que los campos no esten vacios
         if (correo.isEmpty() || contrasena.isEmpty()) {
             ventanaInicioSesion.mostrarError("Debes completar todos los campos");
-            return;
         }
 
         String tipoOperacion = "login";
@@ -251,11 +313,13 @@ public class Controlador implements ActionListener {
         String respuestaLogin = comunicadorServidor.enviarSolicitud(solicitudLogin);
 
         // Procesar la respuesta del servidor
-        procesarRespuestaLogin(respuestaLogin);
+        return procesarRespuestaLogin(respuestaLogin);
 
     }
 
-    //Logout----------------------------------------------------------------
+    /**
+     * Maneja el proceso de logout de usuarios. -------------------------------------------------------------
+     */
     private void manejarLogout () {
         //Obtener los datos necesarios para logout
         String tipoOperacion = "logout";
@@ -276,6 +340,36 @@ public class Controlador implements ActionListener {
         procesarRespuestaLogout(respuestaLogout);
     }
 
+    /**
+     * Maneja el proceso de consignacion. -------------------------------------------------------------
+     */
+
+    private void manejarConsignacion() {
+
+        String numeroCuentaDestino = ventanaConsignar.getCampoNumeroCuentaDestino();
+        double monto = Double.parseDouble(ventanaConsignar.getCampoValorConsignar());
+
+
+        String tipoOperacion = "consigna_cuenta";
+        String datos = "{"
+                + "\"idSesion\": \"" +  loginIdSession + "\","
+                + "\"numeroCuentaDestino\": \"" + numeroCuentaDestino + "\","
+                + "\"monto\": \"" + monto + "\""
+                + "}";
+
+        String solicitudConsignacion = "{"
+                + "\"tipoOperacion\": \"" + tipoOperacion + "\","
+                + "\"datos\": " + datos
+                + "}";
+
+
+        // Enviar solicitud de consignacion al sevidor
+        String respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+
+        // Procesar la respuesta del servidor
+        procesarRespuestaConsignacion(respuestaConsignacion);
+
+    }
 
 
     /**
@@ -415,8 +509,7 @@ public class Controlador implements ActionListener {
         }
     }
 
-
-    private void procesarRespuestaLogin(String respuesta) {
+    private boolean procesarRespuestaLogin(String respuesta) {
         if (respuesta != null && !respuesta.isEmpty()) {
             try {
                 Gson gson = new Gson();
@@ -437,6 +530,10 @@ public class Controlador implements ActionListener {
                     String msg = "Bienvenido";
                     ventanaInicioSesion.mostrarMensaje(msg);
                     ventanaInicioSesion.dispose();
+
+                    return true;
+
+                    /*
                     if (ventanaInicio == null) {
                         ventanaInicio = new VentanaInicio();
                         ventanaInicio.setVisible(true);
@@ -448,10 +545,10 @@ public class Controlador implements ActionListener {
                             manejarLogout(); // Llamar logout al cerrar ventana
                         }
                     });
-
+                    */
 
                 } else {
-                    // Error en la creación de la cuenta
+                    // Error en inicio de sesion
                     ventanaInicioSesion.mostrarError("Error: " + resp.getMensaje());
                 }
             } catch (Exception ex) {
@@ -459,7 +556,9 @@ public class Controlador implements ActionListener {
             }
         } else {
             ventanaInicioSesion.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+            return false;
         }
+        return false;
     }
 
     private void procesarRespuestaLogout(String respuesta) {
@@ -481,6 +580,47 @@ public class Controlador implements ActionListener {
             }
         } else {
             ventanaInicioSesion.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+        }
+    }
+
+    private void procesarRespuestaConsignacion(String respuesta) {
+        if (respuesta != null && !respuesta.isEmpty()) {
+            try {
+                Gson gson = new Gson();
+                RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
+
+                if (resp.getCodigo() == 200) {
+                    // Éxito en la creación de la cuenta
+                    Map<String, Object> datos = resp.getDatos();
+
+                    String numeroCuenta = "";
+                    String titular = "";
+
+                    String numeroCuentaDestino = "";
+                    String monto = "";
+
+
+                    if (datos.containsKey("numeroCuentaDestino")) {
+                        numeroCuentaDestino = datos.get("numeroCuenta").toString();
+                    }
+                    if (datos.containsKey("monto")) {
+                        monto = datos.get("monto").toString();
+                    }
+                    // Mostrar mensaje de éxito al usuario
+                    String msg = "Consignacion realizda exitosamente.\n"
+                            + "Cuenta destino: " + numeroCuentaDestino + "\n"
+                            + "Monto: " + monto;
+                    ventanaConsignar.mostrarMensaje(msg);
+                    ventanaConsignar.dispose();
+                } else {
+                    // Error en la consignacion
+                    ventanaConsignar.mostrarError("Error: " + resp.getMensaje());
+                }
+            } catch (Exception ex) {
+                ventanaConsignar.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+            }
+        } else {
+            ventanaConsignar.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
         }
     }
 }
