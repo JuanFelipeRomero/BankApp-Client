@@ -35,17 +35,71 @@ public class Controlador implements ActionListener {
         this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
-        // Intentar conectar al servidor hasta que se logre la conexión o el usuario decida salir.
-        while(!comunicadorServidor.isServidorActivo()) {
-            comunicadorServidor.conectar();
-            verificarConexion();
-        }
+        //--------------------------------------------------------------------------------------------------
 
-        // Conexión establecida: ahora se muestra la ventana principal.
-        JOptionPane.showMessageDialog(null, "Conexion establecida con exito!");
-        this.ventanaPrincipalN.setVisible(true);
-        this.ventanaPrincipalN.agregarActionListener(this);
+        // Crear un diálogo modal que muestre "Conectandose al servidor..."
+        final JDialog ventanaEspera = new JDialog((JFrame) null, "Conectando", true);
+        JLabel label = new JLabel("Conectando al servidor...", JLabel.CENTER);
+        ventanaEspera.getContentPane().add(label);
+        ventanaEspera.setSize(300, 100);
+        ventanaEspera.setLocationRelativeTo(null);
+
+        //Crear un hilo en segundo plano para los intentos de conexion
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int intentos = 0;
+
+                //Bucle para conectarse al servidor en caso de que no este activo
+                while (intentos < 10 && !comunicadorServidor.isServidorActivo()) {
+                     comunicadorServidor.conectar();
+
+                     //Verificar conexion enviando un ping
+                    if (comunicadorServidor.enviarPing()) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                ventanaEspera.dispose();
+                                JOptionPane.showMessageDialog(null, "Conexion establecida con el servidor!");
+                                ventanaPrincipalN.setVisible(true);
+                                ventanaPrincipalN.agregarActionListener(Controlador.this);
+                            }
+                        });
+
+                        return;
+                    }
+
+                    intentos++;
+
+                    try {
+                        //Pausar la ejecucion de la logica del hilo durante tres segundos para intentar de nuevo
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //Luego de cumplir los 10 intentos se le notifica al usuario
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        ventanaEspera.dispose();
+                        JOptionPane.showMessageDialog(null,
+                                "No se pudo establecer la conexión con el servidor, intente en otro momento",
+                                "Error de conexión", JOptionPane.ERROR_MESSAGE);
+                        System.exit(0);
+                    }
+                });
+
+            }
+        }).start();
+
+        //El dialogo se mostrara hasta que se elimine con dispose()
+        ventanaEspera.setVisible(true);
     }
+
+
+    //--------------------------------------------------------------------------------------------------
 
     private boolean verificarConexion() {
         // Verificamos con el ping
@@ -68,7 +122,6 @@ public class Controlador implements ActionListener {
         }
         System.exit(0);
         return false;
-
     }
 
     @Override
