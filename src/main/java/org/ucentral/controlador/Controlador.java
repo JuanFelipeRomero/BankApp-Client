@@ -621,6 +621,7 @@ public class Controlador implements ActionListener {
                         String saldoNuevo = datosDeposito.get("saldoNuevo").toString();
                         String msg = "Deposito realiazado exitosamente\n Nuevo Saldo: " + saldoNuevo;
                         ventanaDepositar.mostrarMensaje(msg);
+                        ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
                     }
                     ventanaDepositar.dispose();
 
