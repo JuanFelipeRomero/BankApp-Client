@@ -110,13 +110,6 @@ public class Controlador implements ActionListener {
         return false;
     }
 
-    //_____________________________________________________________________________________________________________
-
-
-
-
-    //_____________________________________________________________________________________________________________
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -177,6 +170,9 @@ public class Controlador implements ActionListener {
                     ventanaInicio = new VentanaInicio();
                     ventanaInicio.agregarActionListener(this); // Agregar el listener a VentanaInicio
                     ventanaInicio.setVisible(true);
+                    ventanaInicio.setNombreUsuario(nombreLogin);
+                    ventanaInicio.setEtiquetaCuentaUsuario(numeroCuentaLogin);
+                    ventanaInicio.setEtiquetaSaldoActual(saldoLogin);
                 }
 
                 ventanaInicio.addWindowListener(new WindowAdapter() {
@@ -347,7 +343,7 @@ public class Controlador implements ActionListener {
     private void manejarDeposito () {
 
         String numeroCuentaDestino = numeroCuentaLogin;
-        int monto =  Integer.parseInt(ventanaConsignar.getCampoValorConsignar());
+        int monto =  Integer.parseInt(ventanaDepositar.getCampoValorDepositar());
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"

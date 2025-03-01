@@ -66,7 +66,7 @@
           <text value="Depositar a mi cuenta"/>
         </properties>
       </component>
-      <component id="3d50c" class="javax.swing.JLabel">
+      <component id="3d50c" class="javax.swing.JLabel" binding="etiquetaNombreUsuario">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -74,7 +74,7 @@
           <alignmentY value="0.1"/>
           <font name="Yu Gothic UI Semibold" size="14"/>
           <iconTextGap value="10"/>
-          <text value="Bienvenido @Nombre_Usuario"/>
+          <text value="Nombre_Usuario"/>
         </properties>
       </component>
       <grid id="dd37e" binding="separador1" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

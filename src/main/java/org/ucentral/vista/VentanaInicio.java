@@ -12,6 +12,7 @@ public class VentanaInicio extends JFrame {
     private JLabel etiquetaCuentaUsuario;
     private JLabel etiquetaSaldoActual;
     private JPanel contentPane;
+    private JLabel etiquetaNombreUsuario;
 
     public VentanaInicio() {
         if(contentPane == null) {
@@ -36,8 +37,20 @@ public class VentanaInicio extends JFrame {
         return botonVerMovimientos;
     }
 
+    public void setNombreUsuario(String nombreUsuario) {
+        etiquetaNombreUsuario.setText("Bienvenido: " + nombreUsuario);
+    }
 
-    //Mmetodo para agregar el ActionListener a sus botones
+    public void setEtiquetaCuentaUsuario(String etiquetaCuentaUsuario) {
+        this.etiquetaCuentaUsuario.setText("#Cuenta: " + etiquetaCuentaUsuario);
+    }
+
+    public void setEtiquetaSaldoActual(String etiquetaSaldoActual) {
+        this.etiquetaSaldoActual.setText(etiquetaSaldoActual);
+    }
+
+
+    //Metodo para agregar el ActionListener a sus botones
     public void agregarActionListener(ActionListener listener) {
         botonConsignar.addActionListener(listener);
         botonDepositarAMicuenta.addActionListener(listener);

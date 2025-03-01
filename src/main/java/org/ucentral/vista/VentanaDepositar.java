@@ -23,8 +23,8 @@ public class VentanaDepositar extends JFrame {
     }
 
     // Getters (si se requieren para asignar ActionListeners, etc.)
-    public JTextField getCampoValorDepositar() {
-        return campoValorDepositar;
+    public String getCampoValorDepositar() {
+        return campoValorDepositar.getText();
     }
 
     public JButton getBotonConfirmarDeposito() {
