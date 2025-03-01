@@ -36,6 +36,7 @@ public class VentanaInicio extends JFrame {
         return botonVerMovimientos;
     }
 
+
     //Mmetodo para agregar el ActionListener a sus botones
     public void agregarActionListener(ActionListener listener) {
         botonConsignar.addActionListener(listener);

@@ -31,6 +31,14 @@ public class VentanaDepositar extends JFrame {
         return botonConfirmarDeposito;
     }
 
+    public void mostrarMensaje(String msg) {
+        JOptionPane.showMessageDialog(null, msg);
+    }
+
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     public void agregarActionListener(ActionListener listener) {
         botonConfirmarDeposito.addActionListener(listener);
     }

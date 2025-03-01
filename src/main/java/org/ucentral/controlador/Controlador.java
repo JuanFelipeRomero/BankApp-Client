@@ -1,4 +1,6 @@
 package org.ucentral.controlador;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
 import org.ucentral.vista.*;
@@ -347,7 +349,6 @@ public class Controlador implements ActionListener {
         String numeroCuentaDestino = numeroCuentaLogin;
         int monto =  Integer.parseInt(ventanaConsignar.getCampoValorConsignar());
 
-
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
                 + "\"idSesion\": \"" + loginIdSession + "\","
@@ -362,10 +363,10 @@ public class Controlador implements ActionListener {
 
 
         // Enviar solicitud de consignacion al sevidor
-        String respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+        String respuestaDeposito = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
 
         // Procesar la respuesta del servidor
-        procesarRespuestaConsignacion(respuestaConsignacion);
+        procesarRespuestaDeposito(respuestaDeposito);
     }
 
     /**
@@ -541,20 +542,6 @@ public class Controlador implements ActionListener {
 
                     return true;
 
-                    /*
-                    if (ventanaInicio == null) {
-                        ventanaInicio = new VentanaInicio();
-                        ventanaInicio.setVisible(true);
-                    }
-
-                    ventanaInicio.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosing(WindowEvent e) {
-                            manejarLogout(); // Llamar logout al cerrar ventana
-                        }
-                    });
-                    */
-
                 } else {
                     // Error en inicio de sesion
                     ventanaInicioSesion.mostrarError("Error: " + resp.getMensaje());
@@ -595,33 +582,21 @@ public class Controlador implements ActionListener {
         if (respuesta != null && !respuesta.isEmpty()) {
             try {
                 Gson gson = new Gson();
+
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
                 if (resp.getCodigo() == 200) {
-                    // Éxito en la creación de la cuenta
-                    Map<String, Object> datos = resp.getDatos();
+                    // Éxito en la consignacion
+                    Map<String, Object> datosConsignacion = resp.getDatos();
 
-                    /*
-                    String numeroCuentaDestino = "";
-                    String monto = "";
-
-
-                    if (datos.containsKey("numeroCuentaDestino")) {
-                        numeroCuentaDestino = datos.get("numeroCuenta").toString();
+                    if (datosConsignacion.containsKey("numeroCuentaDestino")) {
+                        String numeroCuentaDestino = datosConsignacion.get("numeroCuentaDestino").toString();
+                        String msg = "Consignacion realizada exitosamente\n cuenta destino:  " + numeroCuentaDestino;
+                        ventanaConsignar.mostrarMensaje(msg);
                     }
-                    if (datos.containsKey("monto")) {
-                        monto = datos.get("monto").toString();
-                    }
-                    // Mostrar mensaje de éxito al usuario
-                    String msg = "Consignacion realizda exitosamente.\n"
-                            + "Cuenta destino: " + numeroCuentaDestino + "\n"
-                            + "\"monto\": \"" + monto + "\"";
-                    */
 
-
-                    String msg = "Consignacion realizda exitosamente";
-                    ventanaConsignar.mostrarMensaje(msg);
                     ventanaConsignar.dispose();
+
                 } else {
                     // Error en la consignacion
                     ventanaConsignar.mostrarError("Error: " + resp.getMensaje());
@@ -631,6 +606,37 @@ public class Controlador implements ActionListener {
             }
         } else {
             ventanaConsignar.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+        }
+    }
+
+    private void procesarRespuestaDeposito(String respuesta) {
+        if (respuesta != null && !respuesta.isEmpty()) {
+            try {
+                Gson gson = new Gson();
+
+                RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
+
+                if (resp.getCodigo() == 200) {
+                    // Éxito en el deposito
+                    // Éxito en la creación de la cuenta
+                    Map<String, Object> datosDeposito = resp.getDatos();
+
+                    if (datosDeposito.containsKey("saldoNuevo")) {
+                        String saldoNuevo = datosDeposito.get("saldoNuevo").toString();
+                        String msg = "Deposito realiazado exitosamente\n Nuevo Saldo: " + saldoNuevo;
+                        ventanaDepositar.mostrarMensaje(msg);
+                    }
+                    ventanaDepositar.dispose();
+
+                } else {
+                    // Error en la consignacion
+                    ventanaDepositar.mostrarError("Error: " + resp.getMensaje());
+                }
+            } catch (Exception ex) {
+                ventanaDepositar.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+            }
+        } else {
+            ventanaDepositar.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
         }
     }
 }
