@@ -1,6 +1,7 @@
 package org.ucentral.vista;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
 public class VentanaInicio extends JFrame {
     private JButton botonConsignar;
@@ -13,6 +14,9 @@ public class VentanaInicio extends JFrame {
     private JPanel contentPane;
 
     public VentanaInicio() {
+        if(contentPane == null) {
+            contentPane = new JPanel();
+        }
         setContentPane(contentPane);
         setTitle("Iniciar Sesion");
         setSize(350, 325);
@@ -32,4 +36,10 @@ public class VentanaInicio extends JFrame {
         return botonVerMovimientos;
     }
 
+    //Mmetodo para agregar el ActionListener a sus botones
+    public void agregarActionListener(ActionListener listener) {
+        botonConsignar.addActionListener(listener);
+        botonDepositarAMicuenta.addActionListener(listener);
+        botonVerMovimientos.addActionListener(listener);
+    }
 }

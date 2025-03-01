@@ -19,9 +19,14 @@ public class Controlador implements ActionListener {
     private VentanaConsultaN ventanaConsultaN;
     private VentanaInicio ventanaInicio;
     private VentanaConsignar ventanaConsignar;
+    private VentanaDepositar ventanaDepositar;
     private ComunicadorServidor comunicadorServidor;
     private static String correoLogin;
     private static String loginIdSession;
+    private static String numeroCuentaLogin;
+    private static String nombreLogin;
+    private static String saldoLogin;
+
 
     public Controlador(VentanaPrincipalN ventanaPrincipalN) {
 
@@ -37,62 +42,6 @@ public class Controlador implements ActionListener {
         ventanaEspera.setSize(300, 100);
         ventanaEspera.setLocationRelativeTo(null);
 
-
-        //Crear un hilo en segundo plano para los intentos de conexion
-        /*
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int intentos = 0;
-
-                //Bucle para conectarse al servidor en caso de que no este activo
-                while (intentos < 10 && !comunicadorServidor.isServidorActivo()) {
-                     comunicadorServidor.conectar();
-
-                     //Verificar conexion enviando un ping
-                    if (comunicadorServidor.enviarPing()) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                ventanaEspera.dispose();
-                                JOptionPane.showMessageDialog(null, "Conexion establecida con el servidor!");
-                                ventanaPrincipalN.setVisible(true);
-                                ventanaPrincipalN.agregarActionListener(Controlador.this);
-                            }
-                        });
-
-                        return;
-                    }
-
-                    intentos++;
-
-                    try {
-                        //Pausar la ejecucion de la logica del hilo durante tres segundos para intentar de nuevo
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                //Luego de cumplir los 10 intentos se le notifica al usuario
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        ventanaEspera.dispose();
-                        JOptionPane.showMessageDialog(null,
-                                "No se pudo establecer la conexión con el servidor, intente en otro momento",
-                                "Error de conexión", JOptionPane.ERROR_MESSAGE);
-                        System.exit(0);
-                    }
-                });
-
-            }
-        }).start();
-
-        //El dialogo se mostrara hasta que se elimine con dispose()
-        ventanaEspera.setVisible(true);
-
-        */
 
         if (comunicadorServidor.enviarPing()) {
             SwingUtilities.invokeLater(() -> {
@@ -224,6 +173,7 @@ public class Controlador implements ActionListener {
             if(manejarLogin()){
                 if (ventanaInicio == null) {
                     ventanaInicio = new VentanaInicio();
+                    ventanaInicio.agregarActionListener(this); // Agregar el listener a VentanaInicio
                     ventanaInicio.setVisible(true);
                 }
 
@@ -243,6 +193,26 @@ public class Controlador implements ActionListener {
                 ventanaConsignar.agregarActionListener(this);
             }
             ventanaConsignar.setVisible(true);
+        }
+
+        //Boton para confirmar consignaciones
+        else if (ventanaConsignar!= null && e.getSource() == ventanaConsignar.getBotonConsignar()) {
+            manejarConsignacion();
+        }
+
+
+        // Nuevo bloque: Botón para mostrar la ventana de depositar a mi cuenta
+        else if (ventanaInicio != null && e.getSource() == ventanaInicio.getbotonDepositarAMicuenta()) {
+            if (ventanaDepositar == null) {
+                ventanaDepositar = new VentanaDepositar();
+                ventanaDepositar.agregarActionListener(this);
+            }
+            ventanaDepositar.setVisible(true);
+        }
+
+        //Boton para confirmar deposito
+        else if (ventanaDepositar!= null && e.getSource() == ventanaDepositar.getBotonConfirmarDeposito()) {
+            manejarDeposito();
         }
     }
 
@@ -343,18 +313,16 @@ public class Controlador implements ActionListener {
     /**
      * Maneja el proceso de consignacion. -------------------------------------------------------------
      */
-
     private void manejarConsignacion() {
 
         String numeroCuentaDestino = ventanaConsignar.getCampoNumeroCuentaDestino();
-        double monto = Double.parseDouble(ventanaConsignar.getCampoValorConsignar());
-
+        int monto =  Integer.parseInt(ventanaConsignar.getCampoValorConsignar());
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
-                + "\"idSesion\": \"" +  loginIdSession + "\","
+                + "\"idSesion\": \"" + loginIdSession + "\","
                 + "\"numeroCuentaDestino\": \"" + numeroCuentaDestino + "\","
-                + "\"monto\": \"" + monto + "\""
+                + "\"monto\": " + monto
                 + "}";
 
         String solicitudConsignacion = "{"
@@ -368,9 +336,37 @@ public class Controlador implements ActionListener {
 
         // Procesar la respuesta del servidor
         procesarRespuestaConsignacion(respuestaConsignacion);
-
     }
 
+    /**
+     * Maneja el proceso de Deposito -------------------------------------------------------------
+     */
+
+    private void manejarDeposito () {
+
+        String numeroCuentaDestino = numeroCuentaLogin;
+        int monto =  Integer.parseInt(ventanaConsignar.getCampoValorConsignar());
+
+
+        String tipoOperacion = "consigna_cuenta";
+        String datos = "{"
+                + "\"idSesion\": \"" + loginIdSession + "\","
+                + "\"numeroCuentaDestino\": \"" + numeroCuentaDestino + "\","
+                + "\"monto\": " + monto
+                + "}";
+
+        String solicitudConsignacion = "{"
+                + "\"tipoOperacion\": \"" + tipoOperacion + "\","
+                + "\"datos\": " + datos
+                + "}";
+
+
+        // Enviar solicitud de consignacion al sevidor
+        String respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+
+        // Procesar la respuesta del servidor
+        procesarRespuestaConsignacion(respuestaConsignacion);
+    }
 
     /**
      * Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
@@ -526,6 +522,18 @@ public class Controlador implements ActionListener {
                         correoLogin = datos.get("correo").toString();
                     }
 
+                    if (datos.containsKey("numeroCuenta")) {
+                        numeroCuentaLogin = datos.get("numeroCuenta").toString();
+                    }
+
+                    if (datos.containsKey("nombre")) {
+                        nombreLogin = datos.get("nombre").toString();
+                    }
+
+                    if (datos.containsKey("saldo")) {
+                        saldoLogin = datos.get("saldo").toString();
+                    }
+
                     // Mostrar mensaje de éxito al usuario
                     String msg = "Bienvenido";
                     ventanaInicioSesion.mostrarMensaje(msg);
@@ -593,9 +601,7 @@ public class Controlador implements ActionListener {
                     // Éxito en la creación de la cuenta
                     Map<String, Object> datos = resp.getDatos();
 
-                    String numeroCuenta = "";
-                    String titular = "";
-
+                    /*
                     String numeroCuentaDestino = "";
                     String monto = "";
 
@@ -609,7 +615,11 @@ public class Controlador implements ActionListener {
                     // Mostrar mensaje de éxito al usuario
                     String msg = "Consignacion realizda exitosamente.\n"
                             + "Cuenta destino: " + numeroCuentaDestino + "\n"
-                            + "Monto: " + monto;
+                            + "\"monto\": \"" + monto + "\"";
+                    */
+
+
+                    String msg = "Consignacion realizda exitosamente";
                     ventanaConsignar.mostrarMensaje(msg);
                     ventanaConsignar.dispose();
                 } else {

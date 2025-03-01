@@ -40,7 +40,7 @@ public class ComunicadorServidor {
                 System.out.println("Conexión al servidor establecida.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             //JOptionPane.showMessageDialog(null, "No se pudo conectar al servidor");
             servidorActivo = false;
             System.err.println("No se pudo conectar al servidor.");

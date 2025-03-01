@@ -12,6 +12,9 @@
         private JLabel etiquetaValorConsignar;
 
         public VentanaConsignar() {
+            if(contentPane == null) {
+                contentPane = new JPanel();
+            }
             setContentPane(contentPane);
             setTitle("Registrar Cliente");
             setSize(350, 380);
