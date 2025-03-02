@@ -253,6 +253,7 @@ public class Controlador implements ActionListener {
                 ventanaDepositar = new VentanaDepositar();
                 ventanaDepositar.agregarActionListener(this);
             }
+            ventanaDepositar.reiniciarCampos();
             ventanaDepositar.setVisible(true);
             ventanaDepositar.setVisible(true);
         }
@@ -274,7 +275,6 @@ public class Controlador implements ActionListener {
         //Boton para cerrar sesion
         else if (ventanaInicio!= null && e.getSource() == ventanaInicio.getBotonCerrarSesion()) {
             manejarLogout();
-            ventanaInicio.dispose();
         }
     }
 
@@ -643,8 +643,19 @@ public class Controlador implements ActionListener {
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
                 if (resp.getCodigo() == 200) {
+                    // Limpiar datos de sesión
                     correoLogin = null;
                     loginIdSession = null;
+                    numeroCuentaLogin = null;
+                    nombreLogin = null;
+                    saldoLogin = null;
+
+                    // Asegurarse de que ventanaInicio se establece a null si existe
+                    if (ventanaInicio != null) {
+                        ventanaInicio.dispose();
+                        ventanaInicio = null;
+                    }
+
                     System.out.println("Sesion cerrada exitosamente.");
 
                 } else {
