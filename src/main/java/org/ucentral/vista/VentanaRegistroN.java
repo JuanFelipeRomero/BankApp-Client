@@ -42,6 +42,13 @@ public class VentanaRegistroN extends JFrame {
         return new String(campoContrasena.getPassword()); // Obtener la contraseña como String
     }
 
+    public void reiniciarCampos () {
+        this.campoNombre.setText("");
+        this.campoCedula.setText("");
+        this.campoCorreo.setText("");
+        this.campoContrasena.setText("");
+    }
+
     public JButton getBotonRegistrar() { // Agregar este método
         return botonRegistrar;
     }

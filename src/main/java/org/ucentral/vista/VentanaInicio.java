@@ -13,6 +13,8 @@ public class VentanaInicio extends JFrame {
     private JLabel etiquetaSaldoActual;
     private JPanel contentPane;
     private JLabel etiquetaNombreUsuario;
+    private JPanel separador3;
+    private JButton botonCerrarSesion;
 
     public VentanaInicio() {
         if(contentPane == null) {
@@ -37,6 +39,10 @@ public class VentanaInicio extends JFrame {
         return botonVerMovimientos;
     }
 
+    public JButton getBotonCerrarSesion () {
+        return botonCerrarSesion;
+    }
+
     public void setNombreUsuario(String nombreUsuario) {
         etiquetaNombreUsuario.setText("Bienvenido: " + nombreUsuario);
     }
@@ -55,5 +61,6 @@ public class VentanaInicio extends JFrame {
         botonConsignar.addActionListener(listener);
         botonDepositarAMicuenta.addActionListener(listener);
         botonVerMovimientos.addActionListener(listener);
+        botonCerrarSesion.addActionListener(listener);
     }
 }

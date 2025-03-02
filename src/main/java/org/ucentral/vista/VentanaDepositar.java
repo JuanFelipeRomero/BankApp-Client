@@ -31,6 +31,10 @@ public class VentanaDepositar extends JFrame {
         return botonConfirmarDeposito;
     }
 
+    public void reiniciarCampos() {
+        campoValorDepositar.setText("");
+    }
+
     public void mostrarMensaje(String msg) {
         JOptionPane.showMessageDialog(null, msg);
     }

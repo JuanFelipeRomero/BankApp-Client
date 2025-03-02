@@ -34,6 +34,11 @@
             return botonConfirmarConsignacion;
         }
 
+        public void reiniciarCampos() {
+            campoValorConsignar.setText("");
+            campoNumeroCuentaDestino.setText("");
+        }
+
         public void mostrarMensaje(String msg) {
             JOptionPane.showMessageDialog(null, msg);
         }

@@ -71,6 +71,11 @@ public class VentanaConsultaN extends JFrame {
         getBotonConsultar().addActionListener(listener);
     }
 
+    public void reiniciarCampos () {
+        this.campoCedula.setText("");
+        this.campoNumeroCuenta.setText("");
+    }
+
     //Metodo para mostrar el saldo
     public void mostrarSaldo(double saldo) {
         campoSaldo.setText(String.valueOf(saldo));

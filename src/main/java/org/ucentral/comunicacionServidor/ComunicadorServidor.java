@@ -83,6 +83,7 @@ public class ComunicadorServidor {
 
     // Método síncrono: envía la solicitud y espera la respuesta inmediatamente. ---------------------------------------------------------
     public String enviarSolicitud(String solicitud) {
+
         if (out != null && servidorActivo) {
             out.println(solicitud);
             System.out.println("Solicitud enviada al servidor: " + solicitud);

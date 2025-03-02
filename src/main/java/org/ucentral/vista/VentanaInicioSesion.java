@@ -15,11 +15,11 @@ public class VentanaInicioSesion extends JFrame {
 
     public VentanaInicioSesion() {
         // Asegurar que la UI generada por IntelliJ se usa correctamente
-            setContentPane(contentPane);
-            setTitle("Iniciar Sesion");
-            setSize(350, 325);
-            setLocationRelativeTo(null);
-            setVisible(true);
+        setContentPane(contentPane);
+        setTitle("Iniciar Sesion");
+        setSize(350, 325);
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     public String getCorreo() {
@@ -28,6 +28,11 @@ public class VentanaInicioSesion extends JFrame {
 
     public String getContrasena() {
         return new String(campoContrasena.getPassword()); // Obtener la contraseña como String
+    }
+
+    public void reiniciarCampos () {
+        this.campoCorreo.setText("");
+        this.campoContrasena.setText("");
     }
 
     public JButton getBotonIniciarSesion() {

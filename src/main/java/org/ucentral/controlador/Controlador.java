@@ -113,6 +113,7 @@ public class Controlador implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+
         //verifica la conexion antes de cualquier operacion
         if (!verificarConexion()) {
             return;
@@ -120,11 +121,11 @@ public class Controlador implements ActionListener {
 
         // Botón para mostrar la ventana de registro de nuevos usuarios
         if (e.getSource() == ventanaPrincipalN.getBotonRegistrarse()) {
-
             if (ventanaRegistroN == null) {
                 ventanaRegistroN = new VentanaRegistroN();
                 ventanaRegistroN.agregarActionListener(this);
             }
+            ventanaRegistroN.reiniciarCampos();
             ventanaRegistroN.setVisible(true);
         }
         // Botón para registrar un nuevo usuario
@@ -138,6 +139,7 @@ public class Controlador implements ActionListener {
                 ventanaInicioSesion = new VentanaInicioSesion();
                 ventanaInicioSesion.agregarActionListener(this);
             }
+            ventanaInicioSesion.reiniciarCampos();
             ventanaInicioSesion.setVisible(true);
         }
 
@@ -190,6 +192,7 @@ public class Controlador implements ActionListener {
                 ventanaConsignar = new VentanaConsignar();
                 ventanaConsignar.agregarActionListener(this);
             }
+            ventanaConsignar.reiniciarCampos();
             ventanaConsignar.setVisible(true);
         }
 
@@ -206,11 +209,18 @@ public class Controlador implements ActionListener {
                 ventanaDepositar.agregarActionListener(this);
             }
             ventanaDepositar.setVisible(true);
+            ventanaDepositar.setVisible(true);
         }
 
         //Boton para confirmar deposito
         else if (ventanaDepositar!= null && e.getSource() == ventanaDepositar.getBotonConfirmarDeposito()) {
             manejarDeposito();
+        }
+
+        //Boton para cerrar sesion
+        else if (ventanaInicio!= null && e.getSource() == ventanaInicio.getBotonCerrarSesion()) {
+            manejarLogout();
+            ventanaInicio.dispose();
         }
     }
 
@@ -253,9 +263,8 @@ public class Controlador implements ActionListener {
 
     /**
      * Maneja el proceso de login de usuarios. -------------------------------------------------------------
-     *
-     * @return
      */
+
     private boolean manejarLogin() {
         //Obtener credenciales de los campos
         String correo = ventanaInicioSesion.getCorreo();
@@ -314,7 +323,20 @@ public class Controlador implements ActionListener {
     private void manejarConsignacion() {
 
         String numeroCuentaDestino = ventanaConsignar.getCampoNumeroCuentaDestino();
-        int monto =  Integer.parseInt(ventanaConsignar.getCampoValorConsignar());
+        String montoString =  ventanaConsignar.getCampoValorConsignar();
+
+        // Validar que se haya ingresado al menos un dato
+        if (numeroCuentaDestino.isEmpty() || montoString.isEmpty()) {
+            ventanaConsignar.mostrarError("Debe completar los datos requeridos");
+            return;
+        }
+
+        int monto = Integer.parseInt(montoString);
+
+        if (monto <= 0) {
+            ventanaConsignar.mostrarError("El monto a Consignar debe ser mayor a 0");
+            return;
+        }
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
@@ -343,7 +365,20 @@ public class Controlador implements ActionListener {
     private void manejarDeposito () {
 
         String numeroCuentaDestino = numeroCuentaLogin;
-        int monto =  Integer.parseInt(ventanaDepositar.getCampoValorDepositar());
+        String montoString =  ventanaDepositar.getCampoValorDepositar();
+
+        // Validar que se haya ingresado al menos un dato
+        if (montoString.isEmpty()) {
+            ventanaDepositar.mostrarError("Debe ingresar el valor a depositar");
+            return;
+        }
+
+        int monto = Integer.parseInt(montoString);
+
+        if (monto <= 0) {
+            ventanaDepositar.mostrarError("El monto a depositar debe ser mayor a 0");
+            return;
+        }
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
@@ -373,6 +408,7 @@ public class Controlador implements ActionListener {
             ventanaConsultaN = new VentanaConsultaN();
             ventanaConsultaN.agregarActionListener(this);
         }
+        ventanaConsultaN.reiniciarCampos();
         ventanaConsultaN.mostrarCampoCedula();
         ventanaConsultaN.setVisible(true);
     }
@@ -385,6 +421,7 @@ public class Controlador implements ActionListener {
             ventanaConsultaN = new VentanaConsultaN();
             ventanaConsultaN.agregarActionListener(this);
         }
+        ventanaConsultaN.reiniciarCampos();
         ventanaConsultaN.mostrarCampoNumeroCuenta();
         ventanaConsultaN.setVisible(true);
     }
@@ -393,6 +430,7 @@ public class Controlador implements ActionListener {
      * Maneja la consulta de saldo según el ID o número de cuenta ingresado.-------------------------------------------------------
      */
     private void manejarConsultaSaldo() {
+
         String id = ventanaConsultaN.getCedula();
         String numeroCuenta = ventanaConsultaN.getNumeroCuenta();
 
@@ -532,7 +570,7 @@ public class Controlador implements ActionListener {
                     }
 
                     // Mostrar mensaje de éxito al usuario
-                    String msg = "Bienvenido";
+                    String msg = "Bienvenido " + nombreLogin;
                     ventanaInicioSesion.mostrarMensaje(msg);
                     ventanaInicioSesion.dispose();
 
@@ -585,9 +623,10 @@ public class Controlador implements ActionListener {
                     // Éxito en la consignacion
                     Map<String, Object> datosConsignacion = resp.getDatos();
 
-                    if (datosConsignacion.containsKey("numeroCuentaDestino")) {
+                    if (datosConsignacion.containsKey("monto") || datosConsignacion.containsKey("numeroCuentaDestino")) {
                         String numeroCuentaDestino = datosConsignacion.get("numeroCuentaDestino").toString();
-                        String msg = "Consignacion realizada exitosamente\n cuenta destino:  " + numeroCuentaDestino;
+                        String monto = datosConsignacion.get("monto").toString();
+                        String msg = "Consignacion realizada exitosamente\n" + "Monto consignado: " + monto + "\ncuenta destino:  " + numeroCuentaDestino;
                         ventanaConsignar.mostrarMensaje(msg);
                     }
 
@@ -614,12 +653,12 @@ public class Controlador implements ActionListener {
 
                 if (resp.getCodigo() == 200) {
                     // Éxito en el deposito
-                    // Éxito en la creación de la cuenta
                     Map<String, Object> datosDeposito = resp.getDatos();
 
-                    if (datosDeposito.containsKey("saldoNuevo")) {
+                    if (datosDeposito.containsKey("monto") && datosDeposito.containsKey("saldoNuevo")) {
                         String saldoNuevo = datosDeposito.get("saldoNuevo").toString();
-                        String msg = "Deposito realiazado exitosamente\n Nuevo Saldo: " + saldoNuevo;
+                        String monto = datosDeposito.get("monto").toString();
+                        String msg = "Deposito realiazado exitosamente\n Monto depositado: " + monto +"\n Nuevo Saldo: " + saldoNuevo;
                         ventanaDepositar.mostrarMensaje(msg);
                         ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
                     }
