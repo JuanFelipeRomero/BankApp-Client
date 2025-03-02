@@ -3,6 +3,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
+import org.ucentral.dto.Transaccion;
 import org.ucentral.vista.*;
 import com.google.gson.Gson;
 import javax.swing.*;
@@ -22,6 +23,7 @@ public class Controlador implements ActionListener {
     private VentanaInicio ventanaInicio;
     private VentanaConsignar ventanaConsignar;
     private VentanaDepositar ventanaDepositar;
+    private VentanaMovimientos ventanaMovimientos;
     private ComunicadorServidor comunicadorServidor;
     private static String correoLogin;
     private static String loginIdSession;
@@ -36,14 +38,12 @@ public class Controlador implements ActionListener {
         this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
-
         // Crear un diálogo modal que muestre "Conectandose al servidor..."
         final JDialog ventanaEspera = new JDialog((JFrame) null, "Conectando", true);
         JLabel label = new JLabel("Conectando al servidor...", JLabel.CENTER);
         ventanaEspera.getContentPane().add(label);
         ventanaEspera.setSize(300, 100);
         ventanaEspera.setLocationRelativeTo(null);
-
 
         if (comunicadorServidor.enviarPing()) {
             SwingUtilities.invokeLater(() -> {
@@ -86,7 +86,6 @@ public class Controlador implements ActionListener {
 
     }
 
-
     private boolean verificarConexion() {
         // Verificamos con el ping
         if (comunicadorServidor.enviarPing()) {
@@ -112,7 +111,6 @@ public class Controlador implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
 
         //verifica la conexion antes de cualquier operacion
         if (!verificarConexion()) {
@@ -201,7 +199,6 @@ public class Controlador implements ActionListener {
             manejarConsignacion();
         }
 
-
         // Nuevo bloque: Botón para mostrar la ventana de depositar a mi cuenta
         else if (ventanaInicio != null && e.getSource() == ventanaInicio.getbotonDepositarAMicuenta()) {
             if (ventanaDepositar == null) {
@@ -217,6 +214,15 @@ public class Controlador implements ActionListener {
             manejarDeposito();
         }
 
+        //Botón para mostrar ventana de movimientos realizados
+        else if (ventanaInicio != null && e.getSource() == ventanaInicio.getBotonVerMovimientos()) {
+            if (ventanaMovimientos == null) {
+                ventanaMovimientos = new VentanaMovimientos();
+            }
+            ventanaMovimientos.setVisible(true);
+            manejarVerMovimientos();
+        }
+
         //Boton para cerrar sesion
         else if (ventanaInicio!= null && e.getSource() == ventanaInicio.getBotonCerrarSesion()) {
             manejarLogout();
@@ -224,9 +230,7 @@ public class Controlador implements ActionListener {
         }
     }
 
-    /**
-     * Maneja el proceso de registro de un nuevo usuario. -------------------------------------------------------------
-     */
+     //Maneja el proceso de registro de un nuevo usuario. -------------------------------------------------------------
     private void manejarRegistro() {
         // Obtener datos de la ventana de registro
         String nombre = ventanaRegistroN.getNombre();
@@ -261,10 +265,7 @@ public class Controlador implements ActionListener {
         procesarRespuestaRegistro(respuestaRegistro);
     }
 
-    /**
-     * Maneja el proceso de login de usuarios. -------------------------------------------------------------
-     */
-
+     //Maneja el proceso de login de usuarios. -------------------------------------------------------------
     private boolean manejarLogin() {
         //Obtener credenciales de los campos
         String correo = ventanaInicioSesion.getCorreo();
@@ -294,9 +295,7 @@ public class Controlador implements ActionListener {
 
     }
 
-    /**
-     * Maneja el proceso de logout de usuarios. -------------------------------------------------------------
-     */
+    //Maneja el proceso de logout de usuarios. -------------------------------------------------------------
     private void manejarLogout () {
         //Obtener los datos necesarios para logout
         String tipoOperacion = "logout";
@@ -317,9 +316,7 @@ public class Controlador implements ActionListener {
         procesarRespuestaLogout(respuestaLogout);
     }
 
-    /**
-     * Maneja el proceso de consignacion. -------------------------------------------------------------
-     */
+    //Maneja el proceso de consignacion. -------------------------------------------------------------
     private void manejarConsignacion() {
 
         String numeroCuentaDestino = ventanaConsignar.getCampoNumeroCuentaDestino();
@@ -358,10 +355,7 @@ public class Controlador implements ActionListener {
         procesarRespuestaConsignacion(respuestaConsignacion);
     }
 
-    /**
-     * Maneja el proceso de Deposito -------------------------------------------------------------
-     */
-
+    //Maneja el proceso de Deposito -------------------------------------------------------------
     private void manejarDeposito () {
 
         String numeroCuentaDestino = numeroCuentaLogin;
@@ -400,9 +394,23 @@ public class Controlador implements ActionListener {
         procesarRespuestaDeposito(respuestaDeposito);
     }
 
-    /**
-     * Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
-     */
+    private void manejarVerMovimientos() {
+        String tipoOperacion = "historial_transacciones";
+        String datos =  "{" + "\"idSesion\": \"" + loginIdSession + "\""
+                        + "}";
+
+        String solicitudVerMovimientos = "{"
+                + "\"tipoOperacion\": \"" + tipoOperacion + "\","
+                + "\"datos\": " + datos
+                + "}";
+
+        String respuestaVerMovimientos = comunicadorServidor.enviarSolicitud(solicitudVerMovimientos);
+
+        procesarRespuestaVerMovimientos(respuestaVerMovimientos);
+
+    }
+
+    //Muestra la ventana de consulta configurada para solicitar el ID. ----------------------------------------------------
     private void mostrarVentanaConsultaId() {
         if (ventanaConsultaN == null) {
             ventanaConsultaN = new VentanaConsultaN();
@@ -413,9 +421,7 @@ public class Controlador implements ActionListener {
         ventanaConsultaN.setVisible(true);
     }
 
-    /**
-     * Muestra la ventana de consulta configurada para solicitar el número de cuenta.---------------------------------------------------
-     */
+    //Muestra la ventana de consulta configurada para solicitar el número de cuenta.---------------------------------------------------
     private void mostrarVentanaConsultaCuenta() {
         if (ventanaConsultaN== null) {
             ventanaConsultaN = new VentanaConsultaN();
@@ -426,9 +432,7 @@ public class Controlador implements ActionListener {
         ventanaConsultaN.setVisible(true);
     }
 
-    /**
-     * Maneja la consulta de saldo según el ID o número de cuenta ingresado.-------------------------------------------------------
-     */
+    //Maneja la consulta de saldo según el ID o número de cuenta ingresado.-------------------------------------------------------
     private void manejarConsultaSaldo() {
 
         String id = ventanaConsultaN.getCedula();
@@ -459,13 +463,7 @@ public class Controlador implements ActionListener {
         procesarRespuestaConsulta(respuestaConsulta);
     }
 
-    /**
-     * Procesa la respuesta JSON del servidor al consultar el saldo.
-     * Se asume que el servidor responde con un objeto JSON que incluye:
-     *   - codigo
-     *   - mensaje
-     *   - datos (objeto que contiene saldo)
-     */
+    //Procesa la respuesta JSON del servidor al consultar el saldo.
     private void procesarRespuestaConsulta(String respuesta) {
         if (respuesta != null && !respuesta.isEmpty()) {
             try {
@@ -626,7 +624,7 @@ public class Controlador implements ActionListener {
                     if (datosConsignacion.containsKey("monto") || datosConsignacion.containsKey("numeroCuentaDestino")) {
                         String numeroCuentaDestino = datosConsignacion.get("numeroCuentaDestino").toString();
                         String monto = datosConsignacion.get("monto").toString();
-                        String msg = "Consignacion realizada exitosamente\n" + "Monto consignado: " + monto + "\ncuenta destino:  " + numeroCuentaDestino;
+                        String msg = "Consignacion realizada exitosamente\n" + "Monto consignado: $" + monto + "\ncuenta destino:  " + numeroCuentaDestino;
                         ventanaConsignar.mostrarMensaje(msg);
                     }
 
@@ -658,7 +656,7 @@ public class Controlador implements ActionListener {
                     if (datosDeposito.containsKey("monto") && datosDeposito.containsKey("saldoNuevo")) {
                         String saldoNuevo = datosDeposito.get("saldoNuevo").toString();
                         String monto = datosDeposito.get("monto").toString();
-                        String msg = "Deposito realiazado exitosamente\n Monto depositado: " + monto +"\n Nuevo Saldo: " + saldoNuevo;
+                        String msg = "Deposito realiazado exitosamente\n Monto depositado: $" + monto +"\n Nuevo Saldo: $" + saldoNuevo;
                         ventanaDepositar.mostrarMensaje(msg);
                         ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
                     }
@@ -673,6 +671,47 @@ public class Controlador implements ActionListener {
             }
         } else {
             ventanaDepositar.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
+        }
+    }
+
+    private void procesarRespuestaVerMovimientos(String respuesta) {
+        if (respuesta != null && !respuesta.isEmpty()) {
+            try {
+
+                Gson gson = new Gson();
+                RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
+
+                if (resp.getCodigo() == 200) {
+                    Map<String, Object> registroMovimientos = resp.getDatos();
+
+                    StringBuilder msg = new StringBuilder("Movimientos:\n");
+                    for (Object value : registroMovimientos.values()) {
+                        // Convertir cada objeto manualmente a Transaccion
+                        Transaccion transaccion = gson.fromJson(gson.toJson(value), Transaccion.class);
+
+                        // Construir la línea de salida con el formato especificado
+                        msg.append("Fecha y Hora: ").append(transaccion.getFecha_hora()).append("\n")
+                                .append("Tipo: ").append(transaccion.getTipo_transaccion()).append("\n")
+                                .append("Monto: $").append(transaccion.getMonto()).append("\n")
+                                .append("Cedula remitente: ").append(transaccion.getIdentificacion_origen()).append("\n")
+                                .append("Cuenta Origen: ").append(transaccion.getCuenta_origen()).append("\n")
+                                .append("Cuenta Destino: ").append(transaccion.getCuenta_destino()).append("\n")
+                                .append("-----------------------------------------\n"); // Línea separadora
+                    }
+
+                    // Mostrar en la interfaz
+                    System.out.println(msg.toString()); // Cambia esto por ventanaMovimientos.mostrarMensaje(msg.toString());
+                    ventanaMovimientos.updateTextPane(String.valueOf(msg));
+                } else {
+                    System.out.println("Error: " + resp.getMensaje()); // Cambia esto por ventanaMovimientos.mostrarError("Error: " + resp.getMensaje());
+                }
+
+
+            } catch (Exception ex) {
+                ventanaMovimientos.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
+            }
+        } else {
+            ventanaMovimientos.mostrarError("Error al recibir respuesta del servidor (respuesta nula o vacía).");
         }
     }
 }

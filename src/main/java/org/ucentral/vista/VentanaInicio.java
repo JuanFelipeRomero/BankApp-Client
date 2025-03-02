@@ -22,7 +22,7 @@ public class VentanaInicio extends JFrame {
         }
         setContentPane(contentPane);
         setTitle("Iniciar Sesion");
-        setSize(350, 325);
+        setSize(350, 380);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -52,7 +52,7 @@ public class VentanaInicio extends JFrame {
     }
 
     public void setEtiquetaSaldoActual(String etiquetaSaldoActual) {
-        this.etiquetaSaldoActual.setText(etiquetaSaldoActual);
+        this.etiquetaSaldoActual.setText("$" + etiquetaSaldoActual);
     }
 
 
