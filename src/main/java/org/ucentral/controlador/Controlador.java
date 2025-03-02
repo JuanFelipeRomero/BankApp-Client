@@ -1,6 +1,4 @@
 package org.ucentral.controlador;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.dto.RespuestaDTO;
 import org.ucentral.dto.Transaccion;
@@ -38,41 +36,59 @@ public class Controlador implements ActionListener {
         this.ventanaPrincipalN.setVisible(false);
         this.comunicadorServidor = ComunicadorServidor.getInstance();
 
-        // Crear un diálogo modal que muestre "Conectandose al servidor..."
+        if (verificarConexion()) {
+            ventanaPrincipalN.setVisible(true);
+            ventanaPrincipalN.agregarActionListener(Controlador.this);
+        }
+
+    }
+
+    private boolean verificarConexion() {
+        // Intentar el ping inicial
+        if (comunicadorServidor.enviarPing()) {
+            return true;
+        }
+
+        // Si el ping falla, iniciar automáticamente la reconexión
         final JDialog ventanaEspera = new JDialog((JFrame) null, "Conectando", true);
         JLabel label = new JLabel("Conectando al servidor...", JLabel.CENTER);
         ventanaEspera.getContentPane().add(label);
         ventanaEspera.setSize(300, 100);
         ventanaEspera.setLocationRelativeTo(null);
 
-        if (comunicadorServidor.enviarPing()) {
-            SwingUtilities.invokeLater(() -> {
-                ventanaEspera.dispose();
-                JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
-                ventanaPrincipalN.setVisible(true);
-                ventanaPrincipalN.agregarActionListener(Controlador.this);
-            });
-        } else {
-            new Thread(() -> {
-                int intentos = 0;
-                while (intentos < 10) {
-                    comunicadorServidor.conectar();
-                    if (comunicadorServidor.enviarPing()) {
-                        SwingUtilities.invokeLater(() -> {
-                            ventanaEspera.dispose();
-                            JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
-                            ventanaPrincipalN.setVisible(true);
-                            ventanaPrincipalN.agregarActionListener(Controlador.this);
-                        });
-                        return;
-                    }
-                    intentos++;
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+        // Agregar listener para cerrar el programa si se cierra la ventana de espera
+        ventanaEspera.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
+        new Thread(() -> {
+            int intentos = 0;
+            boolean conectado = false;
+            while (intentos < 10 && !conectado) {
+                // Reintenta conectarse y envía ping
+                comunicadorServidor.conectar();
+                if (comunicadorServidor.enviarPing()) {
+                    conectado = true;
+                    SwingUtilities.invokeLater(() -> {
+                        ventanaEspera.dispose();
+                        JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
+                        ventanaPrincipalN.setVisible(true);
+                        ventanaPrincipalN.agregarActionListener(Controlador.this);
+                    });
+                    break;
                 }
+                intentos++;
+                System.out.println("Intentos de reconexion: " + intentos);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (!conectado) {
                 SwingUtilities.invokeLater(() -> {
                     ventanaEspera.dispose();
                     JOptionPane.showMessageDialog(null,
@@ -80,33 +96,12 @@ public class Controlador implements ActionListener {
                             "Error de conexión", JOptionPane.ERROR_MESSAGE);
                     System.exit(0);
                 });
-            }).start();
-        }
+            }
+        }).start();
+
         ventanaEspera.setVisible(true);
 
-    }
-
-    private boolean verificarConexion() {
-        // Verificamos con el ping
-        if (comunicadorServidor.enviarPing()) {
-            return true;
-        }
-        // Si falla, mostramos el diálogo para intentar reconectar
-        int respuesta = JOptionPane.showConfirmDialog(
-                null,
-                "No se pudo conectar al servidor. ¿Desea intentar nuevamente?",
-                "Error de conexión",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE
-        );
-        if (respuesta == JOptionPane.YES_OPTION) {
-            // Intentamos reconectar (esto crea un nuevo socket, etc.)
-            comunicadorServidor.conectar();
-            // Verificamos nuevamente con el ping
-            return comunicadorServidor.enviarPing();
-        }
-        System.exit(0);
-        return false;
+        return true;
     }
 
     @Override
@@ -568,7 +563,7 @@ public class Controlador implements ActionListener {
                     }
 
                     // Mostrar mensaje de éxito al usuario
-                    String msg = "Bienvenido " + nombreLogin;
+                    String msg = "Bienvenid@ " + nombreLogin;
                     ventanaInicioSesion.mostrarMensaje(msg);
                     ventanaInicioSesion.dispose();
 

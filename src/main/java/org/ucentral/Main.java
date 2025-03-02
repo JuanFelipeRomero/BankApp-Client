@@ -1,5 +1,4 @@
 package org.ucentral;
-
 import org.ucentral.controlador.Controlador;
 import org.ucentral.vista.VentanaPrincipalN;
 

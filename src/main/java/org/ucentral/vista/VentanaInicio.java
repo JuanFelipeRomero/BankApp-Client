@@ -44,7 +44,7 @@ public class VentanaInicio extends JFrame {
     }
 
     public void setNombreUsuario(String nombreUsuario) {
-        etiquetaNombreUsuario.setText("Bienvenido: " + nombreUsuario);
+        etiquetaNombreUsuario.setText("Bienvenid@: " + nombreUsuario);
     }
 
     public void setEtiquetaCuentaUsuario(String etiquetaCuentaUsuario) {
