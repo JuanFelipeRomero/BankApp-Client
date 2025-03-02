@@ -74,6 +74,16 @@ public class Controlador implements ActionListener {
                     conectado = true;
                     SwingUtilities.invokeLater(() -> {
                         ventanaEspera.dispose();
+
+
+                        //Cerrar ventanas y restablecer variables
+                        cerrarTodasLasVentanas();
+                        correoLogin = null;
+                        loginIdSession = null;
+                        numeroCuentaLogin = null;
+                        nombreLogin = null;
+                        saldoLogin = null;
+
                         JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
                         ventanaPrincipalN.setVisible(true);
                         ventanaPrincipalN.agregarActionListener(Controlador.this);
@@ -102,6 +112,49 @@ public class Controlador implements ActionListener {
         ventanaEspera.setVisible(true);
 
         return true;
+    }
+
+    private void cerrarTodasLasVentanas() {
+        // Cerrar cada ventana si está abierta
+        if (ventanaRegistroN != null) {
+            ventanaRegistroN.dispose();
+            ventanaRegistroN = null;
+        }
+        
+        if (ventanaInicioSesion != null) {
+            ventanaInicioSesion.dispose();
+            ventanaInicioSesion = null;
+        }
+        
+        if (ventanaOpcionesConsultaN != null) {
+            ventanaOpcionesConsultaN.dispose();
+            ventanaOpcionesConsultaN = null;
+        }
+        
+        if (ventanaConsultaN != null) {
+            ventanaConsultaN.dispose();
+            ventanaConsultaN = null;
+        }
+        
+        if (ventanaInicio != null) {
+            ventanaInicio.dispose();
+            ventanaInicio = null;
+        }
+        
+        if (ventanaConsignar != null) {
+            ventanaConsignar.dispose();
+            ventanaConsignar = null;
+        }
+        
+        if (ventanaDepositar != null) {
+            ventanaDepositar.dispose();
+            ventanaDepositar = null;
+        }
+        
+        if (ventanaMovimientos != null) {
+            ventanaMovimientos.dispose();
+            ventanaMovimientos = null;
+        }
     }
 
     @Override
