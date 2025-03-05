@@ -11,15 +11,17 @@ public class VentanaPrincipalN  extends JFrame{
     private JLabel appBancariaLabel;
     private JButton botonIniciarSesion;
     private JButton botonRegistrarse;
-    private JButton botonConsultarSaldo;
 
 
     public VentanaPrincipalN() {
         // Asegurar que la UI generada por IntelliJ se usa correctamente
+        if(contentPane == null) {
+            contentPane = new JPanel();
+        }
         setContentPane(contentPane);
         setTitle("Aplicación Bancaria");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(350, 325);
+        setSize(350, 300);
         setLocationRelativeTo(null);
 
         // Conectar al servidor al iniciar la aplicación
@@ -37,8 +39,6 @@ public class VentanaPrincipalN  extends JFrame{
         return botonIniciarSesion;
     }
 
-    public JButton getBotonConsultarSaldo() {return botonConsultarSaldo;}
-
     //Metodo para mostrar un mensaje de error
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
@@ -48,6 +48,5 @@ public class VentanaPrincipalN  extends JFrame{
     public void agregarActionListener(ActionListener listener) {
         botonRegistrarse.addActionListener(listener);
         botonIniciarSesion.addActionListener(listener);
-        botonConsultarSaldo.addActionListener(listener);
     }
 }

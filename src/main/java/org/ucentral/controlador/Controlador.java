@@ -129,37 +129,37 @@ public class Controlador implements ActionListener {
             ventanaRegistroN.dispose();
             ventanaRegistroN = null;
         }
-        
+
         if (ventanaInicioSesion != null) {
             ventanaInicioSesion.dispose();
             ventanaInicioSesion = null;
         }
-        
+
         if (ventanaOpcionesConsultaN != null) {
             ventanaOpcionesConsultaN.dispose();
             ventanaOpcionesConsultaN = null;
         }
-        
+
         if (ventanaConsultaN != null) {
             ventanaConsultaN.dispose();
             ventanaConsultaN = null;
         }
-        
+
         if (ventanaInicio != null) {
             ventanaInicio.dispose();
             ventanaInicio = null;
         }
-        
+
         if (ventanaConsignar != null) {
             ventanaConsignar.dispose();
             ventanaConsignar = null;
         }
-        
+
         if (ventanaDepositar != null) {
             ventanaDepositar.dispose();
             ventanaDepositar = null;
         }
-        
+
         if (ventanaMovimientos != null) {
             ventanaMovimientos.dispose();
             ventanaMovimientos = null;
@@ -198,8 +198,28 @@ public class Controlador implements ActionListener {
             ventanaInicioSesion.setVisible(true);
         }
 
+
+        //Bton para login
+        else if (ventanaInicioSesion != null && e.getSource() == ventanaInicioSesion.getBotonIniciarSesion() ) {
+            if(manejarLogin()){
+                if (ventanaInicio == null) {
+                    ventanaInicio = new VentanaInicio();
+                    ventanaInicio.agregarActionListener(this); // Agregar el listener a VentanaInicio
+                    ventanaInicio.setVisible(true);
+                    ventanaInicio.setNombreUsuario(nombreLogin);
+                }
+
+                ventanaInicio.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        manejarLogout(); // Llamar logout al cerrar ventana
+                    }
+                });
+            }
+        }
+
         // Botón para mostrar la ventana de opciones de consulta
-        else if (e.getSource() == ventanaPrincipalN.getBotonConsultarSaldo()) {
+        else if (ventanaInicio != null && e.getSource() == ventanaInicio.getBotonConsultarSaldo()) {
             if (ventanaOpcionesConsultaN == null) {
                 ventanaOpcionesConsultaN= new VentanaOpcionesConsultaN();
                 ventanaOpcionesConsultaN.agregarActionListener(this);
@@ -220,26 +240,6 @@ public class Controlador implements ActionListener {
             manejarConsultaSaldo();
         }
 
-        //Bton para login
-        else if (ventanaInicioSesion != null && e.getSource() == ventanaInicioSesion.getBotonIniciarSesion() ) {
-            if(manejarLogin()){
-                if (ventanaInicio == null) {
-                    ventanaInicio = new VentanaInicio();
-                    ventanaInicio.agregarActionListener(this); // Agregar el listener a VentanaInicio
-                    ventanaInicio.setVisible(true);
-                    ventanaInicio.setNombreUsuario(nombreLogin);
-                    ventanaInicio.setEtiquetaCuentaUsuario(numeroCuentaLogin);
-                    ventanaInicio.setEtiquetaSaldoActual(saldoLogin);
-                }
-
-                ventanaInicio.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosing(WindowEvent e) {
-                        manejarLogout(); // Llamar logout al cerrar ventana
-                    }
-                });
-            }
-        }
 
         //Botón para mostrar ventana para realizar consignaciones
         else if (ventanaInicio != null && e.getSource() == ventanaInicio.getBotonConsignar()) {
@@ -287,7 +287,7 @@ public class Controlador implements ActionListener {
         }
     }
 
-     //Maneja el proceso de registro de un nuevo usuario. -------------------------------------------------------------
+    //Maneja el proceso de registro de un nuevo usuario. -------------------------------------------------------------
     private void manejarRegistro() {
         // Obtener datos de la ventana de registro
         String nombre = ventanaRegistroN.getNombre();
@@ -322,7 +322,7 @@ public class Controlador implements ActionListener {
         procesarRespuestaRegistro(respuestaRegistro);
     }
 
-     //Maneja el proceso de login de usuarios. -------------------------------------------------------------
+    //Maneja el proceso de login de usuarios. -------------------------------------------------------------
     private boolean manejarLogin() {
         //Obtener credenciales de los campos
         String correo = ventanaInicioSesion.getCorreo();
@@ -455,7 +455,7 @@ public class Controlador implements ActionListener {
     private void manejarVerMovimientos() {
         String tipoOperacion = "historial_transacciones";
         String datos =  "{" + "\"token\": \"" + loginToken + "\""
-                        + "}";
+                + "}";
 
         String solicitudVerMovimientos = "{"
                 + "\"tipoOperacion\": \"" + tipoOperacion + "\","
@@ -506,9 +506,15 @@ public class Controlador implements ActionListener {
         String tipoOperacion = "consulta_saldo";
         String datos;
         if (!id.isEmpty()) {
-            datos = "{\"identificacion\": " + id + "}";
+            datos = "{"
+                    + "\"token\": \"" + loginToken + "\","
+                    + "\"identificacion\": \"" + id + "\""
+                    + "}";
         } else {
-            datos = "{\"numeroCuenta\": \"" + numeroCuenta + "\"}";
+            datos = "{"
+                    + "\"token\": \"" + loginToken + "\","
+                    + "\"numeroCuenta\": \"" + numeroCuenta + "\""
+                    + "}";
         }
 
         String solicitudConsulta = "{"
@@ -526,27 +532,36 @@ public class Controlador implements ActionListener {
         if (respuesta != null && !respuesta.isEmpty()) {
             try {
                 Gson gson = new Gson();
-                // Convertir el JSON en un objeto RespuestaDTO
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
-                // Verificar el código de la respuesta
                 if (resp.getCodigo() == 200) {
-                    // Éxito, extraer el saldo del mapa "datos"
                     Map<String, Object> datos = resp.getDatos();
+
                     if (datos != null && datos.containsKey("saldo")) {
+                        // Obtener el valor del saldo y manejarlo de manera segura
                         Object saldoObj = datos.get("saldo");
-                        // Convertirlo a double (puede ser Double, Integer, etc.)
-                        double saldo = ((Number) saldoObj).doubleValue();
-                        ventanaConsultaN.mostrarSaldo(saldo);
+                        double saldoValue = 0.0;
+
+                        // Manejar diferentes tipos de datos que podrían venir en el saldo
+                        if (saldoObj instanceof Number) {
+                            saldoValue = ((Number) saldoObj).doubleValue();
+                        } else if (saldoObj instanceof String) {
+                            try {
+                                saldoValue = Double.parseDouble(saldoObj.toString().trim());
+                            } catch (NumberFormatException e) {
+                                ventanaConsultaN.mostrarError("El formato del saldo recibido no es válido: " + saldoObj);
+                                return;
+                            }
+                        }
+
+                        ventanaConsultaN.mostrarSaldo(saldoValue);
                     } else {
                         ventanaConsultaN.mostrarError("No se encontró el campo 'saldo' en la respuesta.");
                     }
                 } else {
-                    // Si el código no es 200, mostrar el mensaje de error del servidor
                     ventanaConsultaN.mostrarError("Error: " + resp.getMensaje());
                 }
             } catch (Exception ex) {
-                // Error al parsear la respuesta
                 ventanaConsultaN.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
             }
         } else {
@@ -711,7 +726,6 @@ public class Controlador implements ActionListener {
                     String monto = datosDeposito.getOrDefault("monto","").toString();
                     String msg = "Deposito realiazado exitosamente\n Monto depositado: $" + monto +"\n Nuevo Saldo: $" + saldoNuevo;
                     ventanaDepositar.mostrarMensaje(msg);
-                    ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
 
                     ventanaDepositar.dispose();
 

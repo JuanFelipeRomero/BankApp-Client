@@ -8,13 +8,11 @@ public class VentanaInicio extends JFrame {
     private JButton botonVerMovimientos;
     private JButton botonDepositarAMicuenta;
     private JPanel separador1;
-    private JPanel separador2;
-    private JLabel etiquetaCuentaUsuario;
-    private JLabel etiquetaSaldoActual;
     private JPanel contentPane;
     private JLabel etiquetaNombreUsuario;
     private JPanel separador3;
     private JButton botonCerrarSesion;
+    private JButton botonConsultarSaldo;
 
     public VentanaInicio() {
         if(contentPane == null) {
@@ -22,9 +20,13 @@ public class VentanaInicio extends JFrame {
         }
         setContentPane(contentPane);
         setTitle("Iniciar Sesion");
-        setSize(350, 380);
+        setSize(350, 340);
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    public JButton getBotonConsultarSaldo () {
+        return botonConsultarSaldo;
     }
 
     public JButton getBotonConsignar() {
@@ -47,20 +49,13 @@ public class VentanaInicio extends JFrame {
         etiquetaNombreUsuario.setText("Bienvenid@: " + nombreUsuario);
     }
 
-    public void setEtiquetaCuentaUsuario(String etiquetaCuentaUsuario) {
-        this.etiquetaCuentaUsuario.setText("#Cuenta: " + etiquetaCuentaUsuario);
-    }
-
-    public void setEtiquetaSaldoActual(String etiquetaSaldoActual) {
-        this.etiquetaSaldoActual.setText("$" + etiquetaSaldoActual);
-    }
-
 
     //Metodo para agregar el ActionListener a sus botones
     public void agregarActionListener(ActionListener listener) {
         botonConsignar.addActionListener(listener);
         botonDepositarAMicuenta.addActionListener(listener);
         botonVerMovimientos.addActionListener(listener);
+        botonConsultarSaldo.addActionListener(listener);
         botonCerrarSesion.addActionListener(listener);
     }
 }
