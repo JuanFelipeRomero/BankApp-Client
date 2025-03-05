@@ -1,5 +1,6 @@
 package org.ucentral.controlador;
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
+import org.ucentral.configLoader.ConfigLoader;
 import org.ucentral.dto.RespuestaDTO;
 import org.ucentral.dto.Transaccion;
 import org.ucentral.vista.*;
@@ -13,6 +14,11 @@ import java.util.Map;
 
 public class Controlador implements ActionListener {
 
+    //Politica de reintentos
+    private final int cantidadIntentos = ConfigLoader.getCantidadIntentos();
+    private final int intervaloIntentos = ConfigLoader.getIntervaloIntentos();
+
+    //ventanas-------------------
     private VentanaPrincipalN ventanaPrincipalN;
     private VentanaRegistroN ventanaRegistroN;
     private VentanaInicioSesion ventanaInicioSesion;
@@ -67,14 +73,13 @@ public class Controlador implements ActionListener {
         new Thread(() -> {
             int intentos = 0;
             boolean conectado = false;
-            while (intentos < 10 && !conectado) {
+            while (intentos < cantidadIntentos && !conectado) {
                 // Reintenta conectarse y envía ping
                 comunicadorServidor.conectar();
                 if (comunicadorServidor.enviarPing()) {
                     conectado = true;
                     SwingUtilities.invokeLater(() -> {
                         ventanaEspera.dispose();
-
 
                         //Cerrar ventanas y restablecer variables
                         cerrarTodasLasVentanas();
@@ -93,7 +98,7 @@ public class Controlador implements ActionListener {
                 intentos++;
                 System.out.println("Intentos de reconexion: " + intentos);
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(intervaloIntentos);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

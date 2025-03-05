@@ -1,5 +1,7 @@
 package org.ucentral.comunicacionServidor;
 
+import org.ucentral.configLoader.ConfigLoader;
+
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +10,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ComunicadorServidor {
-    private final int PORT = 12345; // Puerto del servidor
+
+    private final int PORT = ConfigLoader.getPort(); // Puerto del servidor
+    private final String HOST = ConfigLoader.getHost();
+
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -33,7 +38,7 @@ public class ComunicadorServidor {
     public void conectar() {
         try {
             if (socket == null || socket.isClosed()) {
-                socket = new Socket("localhost", PORT); // Conexión al servidor
+                socket = new Socket(HOST, PORT); // Conexión al servidor
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 servidorActivo = true;
