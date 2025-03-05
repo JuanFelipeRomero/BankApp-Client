@@ -1,4 +1,5 @@
 package org.ucentral.controlador;
+import com.google.gson.reflect.TypeToken;
 import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.configLoader.ConfigLoader;
 import org.ucentral.dto.RespuestaDTO;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 public class Controlador implements ActionListener {
@@ -29,10 +31,12 @@ public class Controlador implements ActionListener {
     private VentanaDepositar ventanaDepositar;
     private VentanaMovimientos ventanaMovimientos;
     private ComunicadorServidor comunicadorServidor;
-    private static String correoLogin;
+    private static String loginToken;
     private static String loginIdSession;
-    private static String numeroCuentaLogin;
     private static String nombreLogin;
+    private static String correoLogin;
+    private static String identificacionLogin;
+    private static String numeroCuentaLogin;
     private static String saldoLogin;
 
 
@@ -353,8 +357,8 @@ public class Controlador implements ActionListener {
         //Obtener los datos necesarios para logout
         String tipoOperacion = "logout";
         String datos =  "{"
-                + "\"idSesion\": \"" +  loginIdSession + "\","
-                + "\"correo\": \"" + correoLogin + "\""
+                + "\"correo\": \"" +  correoLogin + "\","
+                + "\"token\": \"" + loginToken + "\""
                 + "}";
 
         String solicitudLogout = "{"
@@ -390,7 +394,7 @@ public class Controlador implements ActionListener {
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
-                + "\"idSesion\": \"" + loginIdSession + "\","
+                + "\"token\": \"" + loginToken + "\","
                 + "\"numeroCuentaDestino\": \"" + numeroCuentaDestino + "\","
                 + "\"monto\": " + monto
                 + "}";
@@ -429,7 +433,7 @@ public class Controlador implements ActionListener {
 
         String tipoOperacion = "consigna_cuenta";
         String datos = "{"
-                + "\"idSesion\": \"" + loginIdSession + "\","
+                + "\"token\": \"" + loginToken + "\","
                 + "\"numeroCuentaDestino\": \"" + numeroCuentaDestino + "\","
                 + "\"monto\": " + monto
                 + "}";
@@ -447,9 +451,10 @@ public class Controlador implements ActionListener {
         procesarRespuestaDeposito(respuestaDeposito);
     }
 
+    //Maneja el proceso de consulta de movimientos ----------------------------------------------------
     private void manejarVerMovimientos() {
         String tipoOperacion = "historial_transacciones";
-        String datos =  "{" + "\"idSesion\": \"" + loginIdSession + "\""
+        String datos =  "{" + "\"token\": \"" + loginToken + "\""
                         + "}";
 
         String solicitudVerMovimientos = "{"
@@ -565,14 +570,10 @@ public class Controlador implements ActionListener {
                 if (resp.getCodigo() == 201) {
                     // Éxito en la creación de la cuenta
                     Map<String, Object> datos = resp.getDatos();
-                    String numeroCuenta = "";
-                    String titular = "";
-                    if (datos.containsKey("numeroCuenta")) {
-                        numeroCuenta = datos.get("numeroCuenta").toString();
-                    }
-                    if (datos.containsKey("titular")) {
-                        titular = datos.get("titular").toString();
-                    }
+
+                    String numeroCuenta = datos.getOrDefault("numeroCuenta", "").toString();
+                    String titular = datos.getOrDefault("titular", "").toString();
+
                     // Mostrar mensaje de éxito al usuario
                     String msg = "Cuenta creada exitosamente.\n"
                             + "Titular: " + titular + "\n"
@@ -600,29 +601,19 @@ public class Controlador implements ActionListener {
                 if (resp.getCodigo() == 200) {
                     // Éxito en el login
                     Map<String, Object> datos = resp.getDatos();
-                    if (datos.containsKey("idSesion")) {
-                        loginIdSession = datos.get("idSesion").toString();
-                    }
 
-                    if (datos.containsKey("correo")) {
-                        correoLogin = datos.get("correo").toString();
-                    }
+                    loginToken = datos.getOrDefault("token", "").toString();
+                    loginIdSession = datos.getOrDefault("idSesion", "").toString();
+                    nombreLogin = datos.getOrDefault("nombre", "").toString();
+                    correoLogin = datos.getOrDefault("correo", "").toString();
+                    identificacionLogin = datos.getOrDefault("identificacion", "").toString();
+                    numeroCuentaLogin = datos.getOrDefault("numeroCuenta", "").toString();
 
-                    if (datos.containsKey("numeroCuenta")) {
-                        numeroCuentaLogin = datos.get("numeroCuenta").toString();
-                    }
+                    // Convertir saldo a String, asegurando que sea tratado correctamente
+                    Object saldoObj = datos.get("saldo");
+                    saldoLogin = (saldoObj != null) ? saldoObj.toString() : "0.00";
 
-                    if (datos.containsKey("nombre")) {
-                        nombreLogin = datos.get("nombre").toString();
-                    }
-
-                    if (datos.containsKey("saldo")) {
-                        saldoLogin = datos.get("saldo").toString();
-                    }
-
-                    // Mostrar mensaje de éxito al usuario
-                    String msg = "Bienvenid@ " + nombreLogin;
-                    ventanaInicioSesion.mostrarMensaje(msg);
+                    ventanaInicioSesion.mostrarMensaje("Bienvenid@ " + nombreLogin);
                     ventanaInicioSesion.dispose();
 
                     return true;
@@ -649,10 +640,12 @@ public class Controlador implements ActionListener {
 
                 if (resp.getCodigo() == 200) {
                     // Limpiar datos de sesión
-                    correoLogin = null;
+                    loginToken = null;
                     loginIdSession = null;
-                    numeroCuentaLogin = null;
                     nombreLogin = null;
+                    correoLogin = null;
+                    identificacionLogin = null;
+                    numeroCuentaLogin = null;
                     saldoLogin = null;
 
                     // Asegurarse de que ventanaInicio se establece a null si existe
@@ -685,13 +678,10 @@ public class Controlador implements ActionListener {
                     // Éxito en la consignacion
                     Map<String, Object> datosConsignacion = resp.getDatos();
 
-                    if (datosConsignacion.containsKey("monto") || datosConsignacion.containsKey("numeroCuentaDestino")) {
-                        String numeroCuentaDestino = datosConsignacion.get("numeroCuentaDestino").toString();
-                        String monto = datosConsignacion.get("monto").toString();
-                        String msg = "Consignacion realizada exitosamente\n" + "Monto consignado: $" + monto + "\ncuenta destino:  " + numeroCuentaDestino;
-                        ventanaConsignar.mostrarMensaje(msg);
-                    }
-
+                    String numeroCuentaDestino =  datosConsignacion.getOrDefault("numeroCuentaDestino", "").toString();
+                    String monto = datosConsignacion.getOrDefault("monto", "").toString();
+                    String msg = "Consignacion realizada exitosamente\n" + "Monto consignado: $" + monto + "\ncuenta destino:  " + numeroCuentaDestino;
+                    ventanaConsignar.mostrarMensaje(msg);
                     ventanaConsignar.dispose();
 
                 } else {
@@ -717,17 +707,16 @@ public class Controlador implements ActionListener {
                     // Éxito en el deposito
                     Map<String, Object> datosDeposito = resp.getDatos();
 
-                    if (datosDeposito.containsKey("monto") && datosDeposito.containsKey("saldoNuevo")) {
-                        String saldoNuevo = datosDeposito.get("saldoNuevo").toString();
-                        String monto = datosDeposito.get("monto").toString();
-                        String msg = "Deposito realiazado exitosamente\n Monto depositado: $" + monto +"\n Nuevo Saldo: $" + saldoNuevo;
-                        ventanaDepositar.mostrarMensaje(msg);
-                        ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
-                    }
+                    String saldoNuevo = datosDeposito.getOrDefault("saldoNuevo","").toString();
+                    String monto = datosDeposito.getOrDefault("monto","").toString();
+                    String msg = "Deposito realiazado exitosamente\n Monto depositado: $" + monto +"\n Nuevo Saldo: $" + saldoNuevo;
+                    ventanaDepositar.mostrarMensaje(msg);
+                    ventanaInicio.setEtiquetaSaldoActual(saldoNuevo);
+
                     ventanaDepositar.dispose();
 
                 } else {
-                    // Error en la consignacion
+                    // Error en el deposito
                     ventanaDepositar.mostrarError("Error: " + resp.getMensaje());
                 }
             } catch (Exception ex) {
@@ -746,26 +735,24 @@ public class Controlador implements ActionListener {
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
                 if (resp.getCodigo() == 200) {
-                    Map<String, Object> registroMovimientos = resp.getDatos();
+                    // Convertir "datos" en un mapa de transacciones correctamente tipado
+                    Type tipoMapa = new TypeToken<Map<String, Transaccion>>() {}.getType();
+                    Map<String, Transaccion> registroMovimientos = gson.fromJson(gson.toJson(resp.getDatos()), tipoMapa);
 
+                    // Construcción del mensaje de movimientos
                     StringBuilder msg = new StringBuilder("Movimientos:\n");
-                    for (Object value : registroMovimientos.values()) {
-                        // Convertir cada objeto manualmente a Transaccion
-                        Transaccion transaccion = gson.fromJson(gson.toJson(value), Transaccion.class);
-
-                        // Construir la línea de salida con el formato especificado
+                    for (Transaccion transaccion : registroMovimientos.values()) {
                         msg.append("Fecha y Hora: ").append(transaccion.getFecha_hora()).append("\n")
                                 .append("Tipo: ").append(transaccion.getTipo_transaccion()).append("\n")
                                 .append("Monto: $").append(transaccion.getMonto()).append("\n")
-                                .append("Cedula remitente: ").append(transaccion.getIdentificacion_origen()).append("\n")
+                                .append("Cédula Remitente: ").append(transaccion.getIdentificacion_origen()).append("\n")
                                 .append("Cuenta Origen: ").append(transaccion.getCuenta_origen()).append("\n")
                                 .append("Cuenta Destino: ").append(transaccion.getCuenta_destino()).append("\n")
-                                .append("-----------------------------------------\n"); // Línea separadora
+                                .append("-----------------------------------------\n");
                     }
 
                     // Mostrar en la interfaz
-                    System.out.println(msg.toString()); // Cambia esto por ventanaMovimientos.mostrarMensaje(msg.toString());
-                    ventanaMovimientos.updateTextPane(String.valueOf(msg));
+                    ventanaMovimientos.updateTextPane(msg.toString());
                 } else {
                     System.out.println("Error: " + resp.getMensaje()); // Cambia esto por ventanaMovimientos.mostrarError("Error: " + resp.getMensaje());
                 }
