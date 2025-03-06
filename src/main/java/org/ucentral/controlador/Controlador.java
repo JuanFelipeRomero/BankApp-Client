@@ -508,7 +508,7 @@ public class Controlador implements ActionListener {
         if (!id.isEmpty()) {
             datos = "{"
                     + "\"token\": \"" + loginToken + "\","
-                    + "\"identificacion\": \"" + id + "\""
+                    + "\"identificacion\": " + id
                     + "}";
         } else {
             datos = "{"
