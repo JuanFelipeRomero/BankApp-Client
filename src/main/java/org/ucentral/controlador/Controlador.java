@@ -20,9 +20,6 @@ public class Controlador implements ActionListener {
     private final int cantidadIntentos = ConfigLoader.getCantidadIntentos();
     private final int intervaloIntentos = ConfigLoader.getIntervaloIntentos();
 
-    //Datos para respaldar solicitudes
-    private String solicitudRespaldo = "";
-
     //ventanas-------------------
     private VentanaPrincipalN ventanaPrincipalN;
     private VentanaRegistroN ventanaRegistroN;
@@ -57,12 +54,14 @@ public class Controlador implements ActionListener {
     }
 
     private boolean verificarConexion() {
-        // Intentar el ping inicial
-        if (comunicadorServidor.enviarPing()) {
-            return true;
+        // Si ya está conectado, verificamos con un ping
+        if (comunicadorServidor.isServidorActivo()) {
+            if (comunicadorServidor.enviarPing()) {
+                return true;
+            }
         }
 
-        // Si el ping falla, iniciar automáticamente la reconexión
+        // Si llegamos aquí, necesitamos reconectar
         final JDialog ventanaEspera = new JDialog((JFrame) null, "Conectando", true);
         JLabel label = new JLabel("Conectando al servidor...", JLabel.CENTER);
         ventanaEspera.getContentPane().add(label);
@@ -70,9 +69,9 @@ public class Controlador implements ActionListener {
         ventanaEspera.setLocationRelativeTo(null);
 
         // Agregar listener para cerrar el programa si se cierra la ventana de espera
-        ventanaEspera.addWindowListener(new java.awt.event.WindowAdapter() {
+        ventanaEspera.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent e) {
+            public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });
@@ -81,29 +80,18 @@ public class Controlador implements ActionListener {
             int intentos = 0;
             boolean conectado = false;
             while (intentos < cantidadIntentos && !conectado) {
-                // Reintenta conectarse y envía ping
-                comunicadorServidor.conectar();
+                // Forzamos una reconexión completa
+                comunicadorServidor.reconectar();
                 if (comunicadorServidor.enviarPing()) {
                     conectado = true;
                     SwingUtilities.invokeLater(() -> {
                         ventanaEspera.dispose();
-
-                        //Cerrar ventanas y restablecer variables
-                        cerrarTodasLasVentanas();
-                        correoLogin = null;
-                        loginIdSession = null;
-                        numeroCuentaLogin = null;
-                        nombreLogin = null;
-                        saldoLogin = null;
-
                         JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
-                        ventanaPrincipalN.setVisible(true);
-                        ventanaPrincipalN.agregarActionListener(Controlador.this);
                     });
                     break;
                 }
                 intentos++;
-                System.out.println("Intentos de reconexion: " + intentos);
+                System.out.println("Intentos de reconexión: " + intentos);
                 try {
                     Thread.sleep(intervaloIntentos);
                 } catch (InterruptedException e) {
@@ -122,26 +110,10 @@ public class Controlador implements ActionListener {
         }).start();
 
         ventanaEspera.setVisible(true);
-
-        return true;
-    }
-
-    private void respaldarSolicitud(String solicitud) {
-        solicitudRespaldo = solicitud;
-        System.out.println("Solicitud guardada: " + solicitudRespaldo);
+        return comunicadorServidor.isServidorActivo();
     }
 
     private void cerrarTodasLasVentanas() {
-        // Cerrar cada ventana si está abierta
-        if (ventanaRegistroN != null) {
-            ventanaRegistroN.dispose();
-            ventanaRegistroN = null;
-        }
-
-        if (ventanaInicioSesion != null) {
-            ventanaInicioSesion.dispose();
-            ventanaInicioSesion = null;
-        }
 
         if (ventanaOpcionesConsultaN != null) {
             ventanaOpcionesConsultaN.dispose();
@@ -151,11 +123,6 @@ public class Controlador implements ActionListener {
         if (ventanaConsultaN != null) {
             ventanaConsultaN.dispose();
             ventanaConsultaN = null;
-        }
-
-        if (ventanaInicio != null) {
-            ventanaInicio.dispose();
-            ventanaInicio = null;
         }
 
         if (ventanaConsignar != null) {
@@ -181,6 +148,7 @@ public class Controlador implements ActionListener {
         if (!verificarConexion()) {
             return;
         }
+
 
         // Botón para mostrar la ventana de registro de nuevos usuarios
         if (e.getSource() == ventanaPrincipalN.getBotonRegistrarse()) {
@@ -323,11 +291,14 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudRegistro);
-
         // Enviar solicitud de registro al servidor
         String respuestaRegistro = comunicadorServidor.enviarSolicitud(solicitudRegistro);
+
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaRegistro == null) {
+            verificarConexion();
+            respuestaRegistro = comunicadorServidor.enviarSolicitud(solicitudRegistro);
+        }
 
         // Procesar la respuesta del servidor
         procesarRespuestaRegistro(respuestaRegistro);
@@ -355,15 +326,17 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudLogin);
-
         // Enviar solicitud de registro al servidor
         String respuestaLogin = comunicadorServidor.enviarSolicitud(solicitudLogin);
 
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaLogin == null) {
+            verificarConexion();
+            respuestaLogin = comunicadorServidor.enviarSolicitud(solicitudLogin);
+        }
+
         // Procesar la respuesta del servidor
         return procesarRespuestaLogin(respuestaLogin);
-
     }
 
     //Maneja el proceso de logout de usuarios. -------------------------------------------------------------
@@ -380,8 +353,6 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudLogout);
 
         // Enviar solicitud de registro al servidor
         String respuestaLogout = comunicadorServidor.enviarSolicitud(solicitudLogout);
@@ -421,11 +392,14 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudConsignacion);
-
         // Enviar solicitud de consignacion al sevidor
         String respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaConsignacion == null) {
+            verificarConexion();
+            respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+        }
 
         // Procesar la respuesta del servidor
         procesarRespuestaConsignacion(respuestaConsignacion);
@@ -462,11 +436,14 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudDeposito);
-
         // Enviar solicitud de consignacion al sevidor
         String respuestaDeposito = comunicadorServidor.enviarSolicitud(solicitudDeposito);
+
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaDeposito == null) {
+            verificarConexion();
+            respuestaDeposito = comunicadorServidor.enviarSolicitud(solicitudDeposito);
+        }
 
         // Procesar la respuesta del servidor
         procesarRespuestaDeposito(respuestaDeposito);
@@ -483,10 +460,13 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudVerMovimientos);
-
         String respuestaVerMovimientos = comunicadorServidor.enviarSolicitud(solicitudVerMovimientos);
+
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaVerMovimientos == null) {
+            verificarConexion();
+            respuestaVerMovimientos = comunicadorServidor.enviarSolicitud(solicitudVerMovimientos);
+        }
 
         procesarRespuestaVerMovimientos(respuestaVerMovimientos);
 
@@ -546,11 +526,16 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
-        //Guardar solicitud en caso de que no se pueda realizar
-        respaldarSolicitud(solicitudConsulta);
-
         // Enviar solicitud de consulta y obtener la respuesta
         String respuestaConsulta = comunicadorServidor.enviarSolicitud(solicitudConsulta);
+
+        //En caso de que la respuesta sea null, reenviar la solicitud luego de verificar la conexion
+        if (respuestaConsulta == null) {
+            verificarConexion();
+            respuestaConsulta = comunicadorServidor.enviarSolicitud(solicitudConsulta);
+        }
+
+        //procesar la respuesta del servidor
         procesarRespuestaConsulta(respuestaConsulta);
     }
 
@@ -689,6 +674,8 @@ public class Controlador implements ActionListener {
                     identificacionLogin = null;
                     numeroCuentaLogin = null;
                     saldoLogin = null;
+
+                    cerrarTodasLasVentanas();
 
                     // Asegurarse de que ventanaInicio se establece a null si existe
                     if (ventanaInicio != null) {

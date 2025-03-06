@@ -52,6 +52,28 @@ public class ComunicadorServidor {
         }
     }
 
+    public void desconectar() {
+        try {
+            servidorActivo = false;
+            if (in != null) in.close();
+            if (out != null) out.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+
+            in = null;
+            out = null;
+            socket = null;
+
+            System.out.println("Desconexión completa del servidor");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reconectar() {
+        desconectar(); // Primero limpiamos la conexión anterior
+        conectar();    // Luego intentamos una nueva conexión
+    }
+
     //Enviar ping para verificar la conexion
     public boolean enviarPing() {
         if (servidorActivo && out != null && in != null) {
@@ -85,14 +107,27 @@ public class ComunicadorServidor {
         return false;
     }
 
-
-    // Método síncrono: envía la solicitud y espera la respuesta inmediatamente. ---------------------------------------------------------
     public String enviarSolicitud(String solicitud) {
+        if (!servidorActivo) {
+            reconectar();
+            if (!servidorActivo) return null;
+        }
 
-        if (out != null && servidorActivo) {
+        if (out != null) {
             out.println(solicitud);
             System.out.println("Solicitud enviada al servidor: " + solicitud);
-            return recibirRespuesta();
+            String respuesta = recibirRespuesta();
+
+            // Si la respuesta es null, podría intentar reconectar y reintentar
+            if (respuesta == null && !socket.isClosed()) {
+                reconectar();
+                if (servidorActivo) {
+                    out.println(solicitud);
+                    respuesta = recibirRespuesta();
+                }
+            }
+
+            return respuesta;
         }
         return null;
     }
@@ -103,16 +138,20 @@ public class ComunicadorServidor {
                 String respuesta = in.readLine();
                 if (respuesta == null) {
                     System.err.println("Servidor cerró la conexión inesperadamente.");
+                    servidorActivo = false; // Marcar como inactivo
                     return null;
                 }
                 System.out.println("Respuesta recibida del servidor: " + respuesta);
                 return respuesta;
             }
+        } catch (java.net.SocketException e) {
+            System.err.println("Error de conexión: " + e.getMessage());
+            servidorActivo = false; // Marcar como inactivo
+            // JOptionPane.showMessageDialog(null, "Servidor desconectado");
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error al recibir respuesta del servidor");
+            // JOptionPane.showMessageDialog(null, "Error en la respuesta del servidor: " + e.getMessage());
             servidorActivo = false;
-            System.err.println("Error al recibir respuesta del servidor: " + e);
         }
         return null;
     }
