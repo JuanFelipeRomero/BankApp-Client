@@ -1,0 +1,3 @@
+[2025-03-06 12:53:42] *****Perdida de conexion con el servidor*****
+[2025-03-06 12:53:42] Intento de reconexión #1
+[2025-03-06 12:53:45] Intento de reconexión #2

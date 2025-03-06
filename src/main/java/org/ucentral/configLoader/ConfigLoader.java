@@ -10,7 +10,7 @@ public class ConfigLoader {
     static {
         try {
             //Cargar archivo de propiedades
-            FileInputStream fis = new FileInputStream("config.properties");
+            FileInputStream fis = new FileInputStream("config.client.properties");
             propiedades.load(fis);
             fis.close();
         } catch (IOException e) {
