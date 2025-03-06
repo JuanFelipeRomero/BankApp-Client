@@ -63,7 +63,6 @@ public class ComunicadorServidor {
             out = null;
             socket = null;
 
-            System.out.println("Desconexión completa del servidor");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,10 +89,8 @@ public class ComunicadorServidor {
                     System.err.println("No se recibió una respuesta de ping válida.");
                 }
             } catch (IOException e) {
-                // Aquí capturamos el error de conexión (por ejemplo, Connection reset)
                 System.err.println("Error al enviar/recibir el ping: " + e.getMessage());
                 servidorActivo = false;
-                // Intentamos cerrar el socket para liberarlo y permitir una reconexión limpia.
 
                 try {
                     if (socket != null && !socket.isClosed()) {

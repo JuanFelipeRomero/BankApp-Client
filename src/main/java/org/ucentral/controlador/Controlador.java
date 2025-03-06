@@ -4,6 +4,7 @@ import org.ucentral.comunicacionServidor.ComunicadorServidor;
 import org.ucentral.configLoader.ConfigLoader;
 import org.ucentral.dto.RespuestaDTO;
 import org.ucentral.dto.Transaccion;
+import org.ucentral.logs.Logger;
 import org.ucentral.vista.*;
 import com.google.gson.Gson;
 import javax.swing.*;
@@ -19,6 +20,9 @@ public class Controlador implements ActionListener {
     //Politica de reintentos
     private final int cantidadIntentos = ConfigLoader.getCantidadIntentos();
     private final int intervaloIntentos = ConfigLoader.getIntervaloIntentos();
+
+    //Logger
+    private Logger log = new Logger();
 
     //ventanas-------------------
     private VentanaPrincipalN ventanaPrincipalN;
@@ -76,18 +80,26 @@ public class Controlador implements ActionListener {
             }
         });
 
+        Logger.log("*****Perdida de conexion con el servidor*****", true);
+
         new Thread(() -> {
             int intentos = 0;
             boolean conectado = false;
             while (intentos < cantidadIntentos && !conectado) {
-                // Forzamos una reconexión completa
                 comunicadorServidor.reconectar();
+
+                //guardar en el archivo
+                Logger.log("Intento de reconexión #" + (intentos + 1), true);
+
                 if (comunicadorServidor.enviarPing()) {
                     conectado = true;
                     SwingUtilities.invokeLater(() -> {
                         ventanaEspera.dispose();
                         JOptionPane.showMessageDialog(null, "Conexión establecida con el servidor!");
                     });
+
+                    Logger.log("*****Conexión restablecida con el servidor.*****\n", true);
+
                     break;
                 }
                 intentos++;
@@ -95,6 +107,7 @@ public class Controlador implements ActionListener {
                 try {
                     Thread.sleep(intervaloIntentos);
                 } catch (InterruptedException e) {
+                    Logger.log("Error en el intento de reconexión: " + e.getMessage(), true);
                     e.printStackTrace();
                 }
             }
@@ -106,6 +119,8 @@ public class Controlador implements ActionListener {
                             "Error de conexión", JOptionPane.ERROR_MESSAGE);
                     System.exit(0);
                 });
+
+                Logger.log("******No se pudo establecer la conexión después de " + cantidadIntentos + " intentos.******", true);
             }
         }).start();
 
@@ -758,7 +773,6 @@ public class Controlador implements ActionListener {
     private void procesarRespuestaVerMovimientos(String respuesta) {
         if (respuesta != null && !respuesta.isEmpty()) {
             try {
-
                 Gson gson = new Gson();
                 RespuestaDTO resp = gson.fromJson(respuesta, RespuestaDTO.class);
 
@@ -784,7 +798,6 @@ public class Controlador implements ActionListener {
                 } else {
                     System.out.println("Error: " + resp.getMensaje()); // Cambia esto por ventanaMovimientos.mostrarError("Error: " + resp.getMensaje());
                 }
-
 
             } catch (Exception ex) {
                 ventanaMovimientos.mostrarError("Error al parsear la respuesta del servidor: " + ex.getMessage());
