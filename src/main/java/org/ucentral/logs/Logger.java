@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 
 public class Logger {
-    private static final String LOG_FILE = "logs.txt"; // Archivo donde se guardarán los logs
+    private static final String LOG_FILE = "reporte_conexion.txt"; // Archivo donde se guardarán los logs
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void log(String mensaje, boolean guardarEnArchivo) {
