@@ -20,6 +20,9 @@ public class Controlador implements ActionListener {
     private final int cantidadIntentos = ConfigLoader.getCantidadIntentos();
     private final int intervaloIntentos = ConfigLoader.getIntervaloIntentos();
 
+    //Datos para respaldar solicitudes
+    private String solicitudRespaldo = "";
+
     //ventanas-------------------
     private VentanaPrincipalN ventanaPrincipalN;
     private VentanaRegistroN ventanaRegistroN;
@@ -121,6 +124,11 @@ public class Controlador implements ActionListener {
         ventanaEspera.setVisible(true);
 
         return true;
+    }
+
+    private void respaldarSolicitud(String solicitud) {
+        solicitudRespaldo = solicitud;
+        System.out.println("Solicitud guardada: " + solicitudRespaldo);
     }
 
     private void cerrarTodasLasVentanas() {
@@ -315,6 +323,9 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudRegistro);
+
         // Enviar solicitud de registro al servidor
         String respuestaRegistro = comunicadorServidor.enviarSolicitud(solicitudRegistro);
 
@@ -344,6 +355,9 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudLogin);
+
         // Enviar solicitud de registro al servidor
         String respuestaLogin = comunicadorServidor.enviarSolicitud(solicitudLogin);
 
@@ -365,6 +379,9 @@ public class Controlador implements ActionListener {
                 + "\"tipoOperacion\": \"" + tipoOperacion + "\","
                 + "\"datos\": " + datos
                 + "}";
+
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudLogout);
 
         // Enviar solicitud de registro al servidor
         String respuestaLogout = comunicadorServidor.enviarSolicitud(solicitudLogout);
@@ -404,6 +421,8 @@ public class Controlador implements ActionListener {
                 + "\"datos\": " + datos
                 + "}";
 
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudConsignacion);
 
         // Enviar solicitud de consignacion al sevidor
         String respuestaConsignacion = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
@@ -438,14 +457,16 @@ public class Controlador implements ActionListener {
                 + "\"monto\": " + monto
                 + "}";
 
-        String solicitudConsignacion = "{"
+        String solicitudDeposito = "{"
                 + "\"tipoOperacion\": \"" + tipoOperacion + "\","
                 + "\"datos\": " + datos
                 + "}";
 
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudDeposito);
 
         // Enviar solicitud de consignacion al sevidor
-        String respuestaDeposito = comunicadorServidor.enviarSolicitud(solicitudConsignacion);
+        String respuestaDeposito = comunicadorServidor.enviarSolicitud(solicitudDeposito);
 
         // Procesar la respuesta del servidor
         procesarRespuestaDeposito(respuestaDeposito);
@@ -461,6 +482,9 @@ public class Controlador implements ActionListener {
                 + "\"tipoOperacion\": \"" + tipoOperacion + "\","
                 + "\"datos\": " + datos
                 + "}";
+
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudVerMovimientos);
 
         String respuestaVerMovimientos = comunicadorServidor.enviarSolicitud(solicitudVerMovimientos);
 
@@ -521,6 +545,9 @@ public class Controlador implements ActionListener {
                 + "\"tipoOperacion\": \"" + tipoOperacion + "\","
                 + "\"datos\": " + datos
                 + "}";
+
+        //Guardar solicitud en caso de que no se pueda realizar
+        respaldarSolicitud(solicitudConsulta);
 
         // Enviar solicitud de consulta y obtener la respuesta
         String respuestaConsulta = comunicadorServidor.enviarSolicitud(solicitudConsulta);
