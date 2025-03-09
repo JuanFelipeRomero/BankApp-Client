@@ -1,0 +1,164 @@
+[2025-03-09 14:37:54] *****Perdida de conexion con el servidor*****
+[2025-03-09 14:37:54] Intento de reconexión #1
+[2025-03-09 14:39:17] *****Perdida de conexion con el servidor*****
+[2025-03-09 14:39:17] Intento de reconexión #1
+[2025-03-09 14:39:20] Intento de reconexión #2
+[2025-03-09 14:39:23] Intento de reconexión #3
+[2025-03-09 14:39:26] Intento de reconexión #4
+[2025-03-09 14:39:29] Intento de reconexión #5
+[2025-03-09 14:39:33] Intento de reconexión #6
+[2025-03-09 14:39:36] Intento de reconexión #7
+[2025-03-09 14:39:39] Intento de reconexión #8
+[2025-03-09 14:39:42] Intento de reconexión #9
+[2025-03-09 14:39:45] Intento de reconexión #10
+[2025-03-09 14:39:48] ******No se pudo establecer la conexión después de 10 intentos.******
+[2025-03-09 14:40:02] *****Perdida de conexion con el servidor*****
+[2025-03-09 14:40:02] Intento de reconexión #1
+[2025-03-09 14:40:05] Intento de reconexión #2
+[2025-03-09 14:40:08] Intento de reconexión #3
+[2025-03-09 14:40:11] Intento de reconexión #4
+[2025-03-09 14:40:14] Intento de reconexión #5
+[2025-03-09 14:40:17] Intento de reconexión #6
+[2025-03-09 14:40:20] Intento de reconexión #7
+[2025-03-09 14:40:23] Intento de reconexión #8
+[2025-03-09 14:49:52] *****Perdida de conexion con el servidor*****
+[2025-03-09 14:49:52] Intento de reconexión #1
+[2025-03-09 14:49:55] Intento de reconexión #2
+[2025-03-09 14:49:58] Intento de reconexión #3
+[2025-03-09 14:50:01] Intento de reconexión #4
+[2025-03-09 14:50:04] Intento de reconexión #5
+[2025-03-09 14:50:07] Intento de reconexión #6
+[2025-03-09 16:37:12] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:37:12] Intento de reconexión #1
+[2025-03-09 16:37:12] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:37:17] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:37:17] Intento de reconexión #1
+[2025-03-09 16:37:17] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:37:26] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:37:26] Intento de reconexión #1
+[2025-03-09 16:37:26] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:38:23] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:38:23] Intento de reconexión #1
+[2025-03-09 16:38:23] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:38:26] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:38:26] Intento de reconexión #1
+[2025-03-09 16:38:26] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:38:31] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:38:31] Intento de reconexión #1
+[2025-03-09 16:38:31] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:39:09] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:39:09] Intento de reconexión #1
+[2025-03-09 16:39:12] Intento de reconexión #2
+[2025-03-09 16:48:05] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:48:05] Intento de reconexión #1
+[2025-03-09 16:48:08] Intento de reconexión #2
+[2025-03-09 16:48:11] Intento de reconexión #3
+[2025-03-09 16:48:14] Intento de reconexión #4
+[2025-03-09 16:48:17] Intento de reconexión #5
+[2025-03-09 16:48:20] Intento de reconexión #6
+[2025-03-09 16:48:23] Intento de reconexión #7
+[2025-03-09 16:48:26] Intento de reconexión #8
+[2025-03-09 16:48:29] Intento de reconexión #9
+[2025-03-09 16:48:35] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:48:35] Intento de reconexión #1
+[2025-03-09 16:48:38] Intento de reconexión #2
+[2025-03-09 16:48:41] Intento de reconexión #3
+[2025-03-09 16:48:44] Intento de reconexión #4
+[2025-03-09 16:49:35] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:49:35] Intento de reconexión #1
+[2025-03-09 16:49:35] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:49:43] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:49:43] Intento de reconexión #1
+[2025-03-09 16:49:43] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:49:43] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:49:43] Intento de reconexión #1
+[2025-03-09 16:49:43] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:53:58] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:53:58] Intento de reconexión #1
+[2025-03-09 16:54:01] Intento de reconexión #2
+[2025-03-09 16:54:04] Intento de reconexión #3
+[2025-03-09 16:54:07] Intento de reconexión #4
+[2025-03-09 16:54:10] Intento de reconexión #5
+[2025-03-09 16:54:13] Intento de reconexión #6
+[2025-03-09 16:54:16] Intento de reconexión #7
+[2025-03-09 16:54:19] Intento de reconexión #8
+[2025-03-09 16:54:22] Intento de reconexión #9
+[2025-03-09 16:54:25] Intento de reconexión #10
+[2025-03-09 16:54:28] ******No se pudo establecer la conexión después de 10 intentos.******
+[2025-03-09 16:56:53] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:56:53] Intento de reconexión #1
+[2025-03-09 16:56:53] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:56:55] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:56:56] Intento de reconexión #1
+[2025-03-09 16:56:56] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 16:56:57] *****Perdida de conexion con el servidor*****
+[2025-03-09 16:56:57] Intento de reconexión #1
+[2025-03-09 16:56:57] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:03:32] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:03:32] Intento de reconexión #1
+[2025-03-09 17:03:35] Intento de reconexión #2
+[2025-03-09 17:03:38] Intento de reconexión #3
+[2025-03-09 17:03:41] Intento de reconexión #4
+[2025-03-09 17:03:44] Intento de reconexión #5
+[2025-03-09 17:03:47] Intento de reconexión #6
+[2025-03-09 17:03:50] Intento de reconexión #7
+[2025-03-09 17:03:53] Intento de reconexión #8
+[2025-03-09 17:03:56] Intento de reconexión #9
+[2025-03-09 17:04:00] Intento de reconexión #10
+[2025-03-09 17:04:03] ******No se pudo establecer la conexión después de 10 intentos.******
+[2025-03-09 17:04:12] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:04:12] Intento de reconexión #1
+[2025-03-09 17:04:15] Intento de reconexión #2
+[2025-03-09 17:04:18] Intento de reconexión #3
+[2025-03-09 17:04:22] Intento de reconexión #4
+[2025-03-09 17:06:43] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:06:43] Intento de reconexión #1
+[2025-03-09 17:06:46] Intento de reconexión #2
+[2025-03-09 17:06:49] Intento de reconexión #3
+[2025-03-09 17:09:49] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:09:49] Intento de reconexión #1
+[2025-03-09 17:09:52] Intento de reconexión #2
+[2025-03-09 17:09:55] Intento de reconexión #3
+[2025-03-09 17:09:58] Intento de reconexión #4
+[2025-03-09 17:10:01] Intento de reconexión #5
+[2025-03-09 17:10:04] Intento de reconexión #6
+[2025-03-09 17:10:04] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:10:34] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:10:34] Intento de reconexión #1
+[2025-03-09 17:10:34] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:10:57] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:10:57] Intento de reconexión #1
+[2025-03-09 17:11:00] Intento de reconexión #2
+[2025-03-09 17:11:00] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:13:40] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:13:40] Intento de reconexión #1
+[2025-03-09 17:13:43] Intento de reconexión #2
+[2025-03-09 17:13:46] Intento de reconexión #3
+[2025-03-09 17:13:49] Intento de reconexión #4
+[2025-03-09 17:13:52] Intento de reconexión #5
+[2025-03-09 17:13:55] Intento de reconexión #6
+[2025-03-09 17:13:55] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:14:40] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:14:41] Intento de reconexión #1
+[2025-03-09 17:14:41] *****Conexión restablecida con el servidor.*****
+
+[2025-03-09 17:15:15] *****Perdida de conexion con el servidor*****
+[2025-03-09 17:15:15] Intento de reconexión #1
+[2025-03-09 17:15:15] *****Conexión restablecida con el servidor.*****
+

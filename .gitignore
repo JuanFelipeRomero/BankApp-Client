@@ -1,4 +1,5 @@
 config.client.properties
+reporte_conexion.txt
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

@@ -1,8 +1,5 @@
 package org.ucentral.comunicacionServidor;
 
-import org.ucentral.configLoader.ConfigLoader;
-
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,18 +8,18 @@ import java.net.Socket;
 
 public class ComunicadorServidor {
 
-    private final int PORT = ConfigLoader.getPort(); // Puerto del servidor
-    private final String HOST = ConfigLoader.getHost();
+    private final int BALANCEADOR_PORT = 6000;
+    private final String BALANCEADOR_HOST = "localhost";
 
+    private String servidorHost;
+    private int servidorPort;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private boolean servidorActivo = false;
     private static ComunicadorServidor instancia;
 
-    private ComunicadorServidor() {
-        // Constructor privado para Singleton
-    }
+    private ComunicadorServidor() {}
 
     public static ComunicadorServidor getInstance() {
         if (instancia == null) {
@@ -36,17 +33,60 @@ public class ComunicadorServidor {
     }
 
     public void conectar() {
+        if (servidorHost == null || servidorPort == 0) {
+            obtenerServidorDesdeBalanceador();
+        }
+        establecerConexion(servidorHost, servidorPort);
+    }
+
+    private boolean obtenerServidorDesdeBalanceador() {
+        try (Socket socket = new Socket(BALANCEADOR_HOST, BALANCEADOR_PORT);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+            out.println("solicitarServidor"); // Envía solicitud al balanceador
+            String respuesta = in.readLine();
+
+            if (respuesta == null || respuesta.startsWith("ERROR")) { // Verifica si la respuesta es válida
+                System.err.println("Balanceador no pudo asignar un servidor: " + respuesta);
+                return false;
+            }
+
+            // Separar IP y puerto correctamente
+            String[] partes = respuesta.split(":");
+            if (partes.length != 2) {
+                System.err.println("Formato de respuesta inválido del balanceador: " + respuesta);
+                return false;
+            }
+
+            servidorHost = partes[0];
+            try {
+                servidorPort = Integer.parseInt(partes[1]); // Convertir puerto a entero
+            } catch (NumberFormatException e) {
+                System.err.println("Error al convertir el puerto: " + partes[1]);
+                return false;
+            }
+
+            System.out.println("Servidor asignado: " + servidorHost + ":" + servidorPort);
+            return true;
+
+        } catch (IOException e) {
+            System.err.println("Error al comunicarse con el balanceador: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    private void establecerConexion(String host, int port) {
         try {
             if (socket == null || socket.isClosed()) {
-                socket = new Socket(HOST, PORT); // Conexión al servidor
+                socket = new Socket(host, port);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 servidorActivo = true;
-                System.out.println("Conexión al servidor establecida.");
+                System.out.println("Conexión establecida con el servidor: " + host + ":" + port);
             }
         } catch (IOException e) {
-            //e.printStackTrace();
-            //JOptionPane.showMessageDialog(null, "No se pudo conectar al servidor");
             servidorActivo = false;
             System.err.println("No se pudo conectar al servidor.");
         }
@@ -62,43 +102,25 @@ public class ComunicadorServidor {
             in = null;
             out = null;
             socket = null;
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void reconectar() {
-        desconectar(); // Primero limpiamos la conexión anterior
-        conectar();    // Luego intentamos una nueva conexión
+        desconectar();
+        obtenerServidorDesdeBalanceador();
+        establecerConexion(servidorHost, servidorPort);
     }
 
-    //Enviar ping para verificar la conexion
     public boolean enviarPing() {
         if (servidorActivo && out != null && in != null) {
             try {
-                String mensajePing = "{\"tipoOperacion\":\"ping\"}";
-                out.println(mensajePing);
-                System.out.println("Ping enviado al servidor: " + mensajePing);
-
+                out.println("{\"tipoOperacion\":\"ping\"}");
                 String respuesta = in.readLine();
-                if (respuesta != null && respuesta.contains("pong")) {
-                    System.out.println("Respuesta de ping recibida: " + respuesta);
-                    return true;
-                } else {
-                    System.err.println("No se recibió una respuesta de ping válida.");
-                }
+                return respuesta != null && respuesta.contains("pong");
             } catch (IOException e) {
-                System.err.println("Error al enviar/recibir el ping: " + e.getMessage());
                 servidorActivo = false;
-
-                try {
-                    if (socket != null && !socket.isClosed()) {
-                        socket.close();
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
             }
         }
         return false;
@@ -106,24 +128,21 @@ public class ComunicadorServidor {
 
     public String enviarSolicitud(String solicitud) {
         if (!servidorActivo) {
-            reconectar();
+            conectar();
             if (!servidorActivo) return null;
         }
 
         if (out != null) {
             out.println(solicitud);
-            System.out.println("Solicitud enviada al servidor: " + solicitud);
             String respuesta = recibirRespuesta();
-
-            // Si la respuesta es null, podría intentar reconectar y reintentar
-            if (respuesta == null && !socket.isClosed()) {
+            if (respuesta == null) {
+                servidorActivo = false;
                 reconectar();
                 if (servidorActivo) {
                     out.println(solicitud);
-                    respuesta = recibirRespuesta();
+                    return recibirRespuesta();
                 }
             }
-
             return respuesta;
         }
         return null;
@@ -134,20 +153,12 @@ public class ComunicadorServidor {
             if (in != null && servidorActivo) {
                 String respuesta = in.readLine();
                 if (respuesta == null) {
-                    System.err.println("Servidor cerró la conexión inesperadamente.");
-                    servidorActivo = false; // Marcar como inactivo
+                    servidorActivo = false;
                     return null;
                 }
-                System.out.println("Respuesta recibida del servidor: " + respuesta);
                 return respuesta;
             }
-        } catch (java.net.SocketException e) {
-            System.err.println("Error de conexión: " + e.getMessage());
-            servidorActivo = false; // Marcar como inactivo
-            // JOptionPane.showMessageDialog(null, "Servidor desconectado");
         } catch (IOException e) {
-            e.printStackTrace();
-            // JOptionPane.showMessageDialog(null, "Error en la respuesta del servidor: " + e.getMessage());
             servidorActivo = false;
         }
         return null;
